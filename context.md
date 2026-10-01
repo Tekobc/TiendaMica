@@ -120,12 +120,11 @@ create table compras (
   telefono text not null,
   cantidad integer not null check (cantidad > 0),
   monto_total numeric(12,2) not null,
-  estado_pago text not null default 'reservado'
-    check (estado_pago in ('reservado','pagado','vencido','fallido','reembolsado')),
+  estado_pago text not null default 'pendiente'
+    check (estado_pago in ('pendiente','pagado','fallido','reembolsado')),
   mp_preference_id text,
   mp_payment_id text unique, -- unicidad = idempotencia del webhook (ver sección 11)
   token_acceso text not null unique, -- para la pantalla privada del participante
-  reservado_hasta timestamptz not null, -- ahora() + 10 min al crear (RN-05)
   created_at timestamptz not null default now()
 );
 
@@ -167,7 +166,7 @@ Numeración original del cliente (RN-01 a RN-07) + ampliaciones necesarias marca
 | RN-02 | Al registrarse el **primer pago aprobado**, `precio_numero`, `premio` y `cantidad_numeros` quedan inmutables (`bloqueado = true`). |
 | RN-03 | El monto a pagar se calcula siempre en el servidor (`cantidad * precio_numero`), nunca se confía en un monto enviado desde el cliente. |
 | RN-04 | Los números se asignan de forma automática y secuencial (los siguientes disponibles en orden), al confirmarse el pago. |
-| RN-05 | Reserva de 10 minutos: al iniciar el checkout, los números elegidos quedan en estado `reservado`. Si no se paga en ese plazo, se liberan. |
+| RN-05 | Derogada por RF-07. Ya no existe la reserva de 10 minutos ni una etapa intermedia de `reservado`; el pago se procesa directo y la asignación ocurre solo al aprobarse el pago. |
 | RN-06 | Anti-sobreventa: si un pago se aprobara sin números disponibles, se ejecuta reembolso automático vía API de Mercado Pago y se notifica al admin. |
 | RN-07 | El número ganador se carga **una sola vez**, queda inalterable, y se registra quién y cuándo lo cargó. |
 | 🔧 RN-08 | Tope máximo de números por compra, configurable por el admin al crear el sorteo (evita que una sola persona reserve el sorteo completo por error o abuso). |
@@ -177,26 +176,19 @@ Numeración original del cliente (RN-01 a RN-07) + ampliaciones necesarias marca
 
 ---
 
-## 8. Flujo crítico: reserva → pago → asignación
+## 8. Flujo crítico: formulario → pago → asignación
 
-Esto es lo más delicado técnicamente del proyecto. Implementarlo mal produce doble venta o números fantasma.
+RF-07 elimina el estado intermedio de "reserva". El flujo es directo y no bloquea números antes de aprobar el pago.
 
-**Paso 1 — Reserva (Server Action, transaccional):**
+**Paso 1 — Formulario y compra pendiente (Server Action):**
 
-función reservar_numeros(sorteo_id, cantidad):
-dentro de una transacción:
-- liberar reservas vencidas de ESTE sorteo (reservado_hasta < ahora())
-→ poner compra.estado_pago = 'vencido' y numeros.compra_id = null
-- contar números disponibles (compra_id is null)
-- si disponibles < cantidad: error "no hay stock suficiente"
-- crear fila en compras (estado_pago='reservado', reservado_hasta=ahora()+10min,
-monto_total = cantidad * sorteo.precio_numero ← calculado acá, no recibido del cliente)
-- tomar los cantidad números de menor numeración con compra_id is null
-y asignarles compra_id (esto es lo que el índice único parcial protege
-de condiciones de carrera entre dos requests simultáneos)
-- devolver token_acceso y preference_id a crear en MP
+función crear_compra_pendiente(sorteo_id, cantidad, datos del participante):
+- validar cantidad y monto calculado en el servidor (`cantidad * precio_numero`)
+- crear la fila en `compras` con `estado_pago='pendiente'`
+- no tocar la tabla `numeros` todavía
+- devolver `token_acceso` y `preference_id` para Mercado Pago
 
-Todo esto debe ocurrir en una única función de Postgres (`plpgsql`) o con locking explícito (`select ... for update skip locked` sobre los números candidatos) para que dos compras simultáneas no tomen el mismo número. **No implementar esto como varias queries separadas desde Next.js.**
+No existe una reserva de 10 minutos ni una liberación por expiración. El stock solo se disputa en el momento de la aprobación del pago, con locking atómico en la asignación final.
 
 **Paso 2 — Checkout:** se crea la preferencia de Mercado Pago con `external_reference = compra.id` y `back_urls` apuntando a la pantalla del participante con el token.
 
@@ -206,17 +198,13 @@ al recibir notificación de MP:
 
 NO confiar en el payload del webhook por sí solo
 re-consultar el pago contra la API de Mercado Pago usando el payment_id recibido
-verificar que mp_payment_id no exista ya en compras (idempotencia: el
-webhook puede llegar duplicado)
+verificar que mp_payment_id no exista ya en compras (idempotencia: el webhook puede llegar duplicado)
 verificar que el monto pagado coincida con compra.monto_total
 si status = approved:
-si la reserva sigue vigente (reservado_hasta no venció) y los números
-siguen asignados a esta compra → marcar compra.estado_pago='pagado',
-guardar mp_payment_id
-si la reserva venció y los números fueron liberados/re-tomados por
-otra compra (RN-06, caso borde) → ejecutar reembolso automático vía
-API de MP y notificar al admin
-si status = rejected → compra.estado_pago='fallido', liberar números
+- bloquear la selección de números disponibles con `for update skip locked` en una transacción
+- si hay stock suficiente, asignar los `cantidad` números del siguiente rango disponible a la compra y marcar `estado_pago='pagado'`
+- si no hay stock suficiente al momento de la asignación, ejecutar reembolso automático vía API de MP y notificar al admin (RN-06)
+si status = rejected/cancelled → compra.estado_pago='fallido'; no hubo reserva previa ni números asignados
 
 **Paso 4 — Bloqueo de configuración (RN-02):** al pasar la primera compra a `estado_pago='pagado'`, un trigger o la misma transacción del webhook pone `sorteos.bloqueado = true`.
 

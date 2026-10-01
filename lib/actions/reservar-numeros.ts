@@ -5,27 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createMercadoPagoPreference } from "@/lib/mercadopago";
 import { getActiveSorteo, MOCK_SORTEO_ACTIVO } from "@/lib/mock-data";
 
-// Almacén en memoria simple para control de rate-limit por IP (RN-10)
-const ipReservationsMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipReservationsMap.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    ipReservationsMap.set(ip, { count: 1, resetAt: now + 10 * 60 * 1000 }); // Ventana de 10 min
-    return true;
-  }
-
-  if (entry.count >= 5) {
-    // Máximo 5 reservas activas por IP cada 10 min (RN-10)
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
-}
-
 export interface ReservarNumerosInput {
   sorteoId: string;
   nombreCompleto: string;
@@ -59,21 +38,7 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
       };
     }
 
-    // 3. Control de abuso por IP (RN-10)
-    const headerList = await headers();
-    const clientIp =
-      headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      headerList.get("x-real-ip") ||
-      "127.0.0.1";
-
-    if (!checkRateLimit(clientIp)) {
-      return {
-        ok: false,
-        error: "Has superado el límite de reservas activas temporales. Por favor, aguardá unos minutos.",
-      };
-    }
-
-    // 4. Obtener datos del sorteo para cálculo y validación
+    // 3. Obtener datos del sorteo para cálculo y validación
     const sorteo = await getActiveSorteo();
     if (sorteo.id !== sorteoId || sorteo.estado !== "activo") {
       return { ok: false, error: "El sorteo solicitado no está activo." };
@@ -90,7 +55,7 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
     const montoCalculado = cantidad * sorteo.precio_numero;
     const tokenAcceso = crypto.randomUUID();
 
-    // 5. Intentar reserva atómica en Supabase vía procedimiento almacenado plpgsql (Sección 8 paso 1)
+    // 4. Crear la compra en estado pendiente sin tocar la tabla de números (RF-07)
     let compraId: string = crypto.randomUUID();
     let modoSimulado = false;
 
@@ -102,37 +67,36 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
       try {
         const supabaseAdmin = createAdminClient();
 
-        const { data, error } = await supabaseAdmin.rpc("reservar_numeros", {
-          p_sorteo_id: sorteoId,
-          p_cantidad: cantidad,
-          p_nombre: nombreCompleto.trim(),
-          p_telefono: cleanedPhone,
-          p_token_acceso: tokenAcceso,
-        });
+        const { data, error } = await supabaseAdmin
+          .from("compras")
+          .insert({
+            sorteo_id: sorteoId,
+            nombre_completo: nombreCompleto.trim(),
+            telefono: cleanedPhone,
+            cantidad,
+            monto_total: montoCalculado,
+            estado_pago: "pendiente",
+            token_acceso: tokenAcceso,
+          })
+          .select("id")
+          .single();
 
         if (error) {
-          console.error("[Reserva] Error RPC Supabase:", error);
-          if (error.message && error.message.includes("No hay suficientes números")) {
-            return { ok: false, error: "No quedan suficientes números disponibles para esta cantidad." };
-          }
-          return { ok: false, error: error.message || "Error al procesar la reserva en base de datos." };
+          console.error("[Compra] Error insertando compra pendiente:", error);
+          return { ok: false, error: error.message || "Error al registrar la compra." };
         }
 
-        if (!data || !data.ok) {
-          return { ok: false, error: data?.error || "No quedan suficientes números disponibles para esta cantidad." };
-        }
-
-        compraId = data.compra_id;
+        compraId = data.id;
       } catch (dbErr: any) {
-        console.error("[Reserva] Excepción al invocar Supabase RPC:", dbErr);
-        return { ok: false, error: dbErr?.message || "Error de conexión al procesar la reserva." };
+        console.error("[Compra] Excepción al crear la compra pendiente:", dbErr);
+        return { ok: false, error: dbErr?.message || "Error de conexión al registrar la compra." };
       }
     } else {
-      console.warn("[Reserva] Supabase no configurado en entorno, operando en modo simulado para desarrollo local.");
+      console.warn("[Compra] Supabase no configurado en entorno, operando en modo simulado para desarrollo local.");
       modoSimulado = true;
     }
 
-    // 6. Crear preferencia en Mercado Pago (Paso 2)
+    // 5. Crear preferencia en Mercado Pago (Paso 2)
     const preference = await createMercadoPagoPreference({
       compraId,
       premio: sorteo.premio,
@@ -143,7 +107,7 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
       tokenAcceso,
     });
 
-    // 7. Si estamos con Supabase conectado, guardar mp_preference_id
+    // 6. Si estamos con Supabase conectado, guardar mp_preference_id
     if (!modoSimulado) {
       try {
         const supabaseAdmin = createAdminClient();

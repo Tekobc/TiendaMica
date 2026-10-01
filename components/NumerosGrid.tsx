@@ -64,7 +64,7 @@ export function NumerosGrid({ numeros, numeroGanador }: NumerosGridProps) {
               `}
               title={
                 isWinner
-                  ? `¡Número ${formattedNumber} GANADOR DEL SORTEO!`
+                  ? `¡Número ${formattedNumber} GANADOR DE LA DINÁMICA!`
                   : item.ocupado
                   ? `Número ${formattedNumber}: Ocupado`
                   : `Número ${formattedNumber}: Disponible`

@@ -13,7 +13,7 @@ export function ProgressBar({ total, ocupados }: ProgressBarProps) {
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-mica-500 animate-pulse" />
           <span className="text-sm font-semibold text-stone-800">
-            Faltan <strong className="text-mica-600 font-bold">{disponibles}</strong> números para el sorteo
+            Faltan <strong className="text-mica-600 font-bold">{disponibles}</strong> números para la dinámica
           </span>
         </div>
         <div className="text-xs font-medium text-stone-500 flex items-center gap-3">

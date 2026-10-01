@@ -32,7 +32,7 @@ export default async function AdminLayout({
             el email esté previamente dado de alta por el titular.
           </div>
           <Link
-            href="/sorteos"
+            href="/dinamica"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

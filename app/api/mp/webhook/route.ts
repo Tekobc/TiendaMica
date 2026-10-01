@@ -71,25 +71,27 @@ export async function POST(req: NextRequest) {
 
     // 3. Procesar según estado del pago de Mercado Pago
     if (paymentStatus === "approved") {
-      // Validar monto pagado contra monto registrado en la compra
       if (transactionAmount < Number(compraExistente.monto_total)) {
         console.error(
           `[Webhook MP] Monto discordante en pago ${paymentId}. Esperado: ${compraExistente.monto_total}, Recibido: ${transactionAmount}`
         );
       }
 
-      // Comprobar si los números siguen asignados a esta compra
-      const { data: numerosAsignados } = await supabase
+      const { data: numerosDisponibles, error: stockErr } = await supabase
         .from("numeros")
         .select("id, numero")
-        .eq("compra_id", compraId);
+        .eq("sorteo_id", compraExistente.sorteo_id)
+        .is("compra_id", null)
+        .order("numero", { ascending: true });
 
-      const reservaVencida = new Date(compraExistente.reservado_hasta) < new Date();
-      const sinStockAsignado = !numerosAsignados || numerosAsignados.length < compraExistente.cantidad;
+      if (stockErr) {
+        console.error("[Webhook MP] Error consultando stock disponible:", stockErr);
+        return NextResponse.json({ ok: true, message: "Stock lookup failed" }, { status: 200 });
+      }
 
-      // RN-06: Caso borde anti-sobreventa -> Si la reserva venció y los números fueron re-tomados
-      if (reservaVencida && sinStockAsignado) {
-        console.warn(`[Webhook MP] Anti-sobreventa (RN-06): Reserva vencida y números ya reasignados para compra ${compraId}. Ejecutando reembolso automático.`);
+      const stockActual = numerosDisponibles?.length ?? 0;
+      if (stockActual < compraExistente.cantidad) {
+        console.warn(`[Webhook MP] RN-06: pago aprobado sin stock suficiente para compra ${compraId}. Se ejecuta reembolso automático.`);
 
         try {
           await refundMercadoPagoPayment(payment.id);
@@ -105,12 +107,17 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json(
-          { ok: true, message: "Payment refunded due to stock expiration" },
+          { ok: true, message: "Payment refunded due to insufficient stock" },
           { status: 200 }
         );
       }
 
-      // Flujo exitoso: Marcar como pagado y persistir mp_payment_id
+      const idsAAsignar = (numerosDisponibles || []).slice(0, compraExistente.cantidad).map((n) => n.id);
+      await supabase
+        .from("numeros")
+        .update({ compra_id: compraId })
+        .in("id", idsAAsignar);
+
       await supabase
         .from("compras")
         .update({
@@ -119,26 +126,19 @@ export async function POST(req: NextRequest) {
         })
         .eq("id", compraId);
 
-      // RN-02: Bloquear configuración del sorteo tras el primer pago aprobado
       await supabase
         .from("sorteos")
         .update({ bloqueado: true })
         .eq("id", compraExistente.sorteo_id);
 
-      console.log(`[Webhook MP] Pago ${paymentId} confirmado exitosamente para compra ${compraId}. Sorteo bloqueado.`);
+      console.log(`[Webhook MP] Pago ${paymentId} confirmado exitosamente para compra ${compraId}. Números asignados y sorteo bloqueado.`);
     } else if (paymentStatus === "rejected" || paymentStatus === "cancelled") {
-      // Marcar compra como fallida y liberar números
       await supabase
         .from("compras")
         .update({ estado_pago: "fallido" })
         .eq("id", compraId);
 
-      await supabase
-        .from("numeros")
-        .update({ compra_id: null })
-        .eq("compra_id", compraId);
-
-      console.log(`[Webhook MP] Pago ${paymentId} rechazado/cancelado. Números liberados para compra ${compraId}.`);
+      console.log(`[Webhook MP] Pago ${paymentId} rechazado/cancelado. Compra marcada como fallida para ${compraId}.`);
     }
 
     return NextResponse.json({ ok: true, status: paymentStatus }, { status: 200 });

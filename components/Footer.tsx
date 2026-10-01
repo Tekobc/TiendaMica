@@ -20,7 +20,7 @@ export function Footer() {
         </div>
 
         <div className="flex items-center gap-6 text-xs font-medium text-stone-500">
-          <Link href="/sorteos/bases-y-condiciones" className="hover:text-mica-600 transition-colors flex items-center gap-1.5">
+          <Link href="/dinamica/bases-y-condiciones" className="hover:text-mica-600 transition-colors flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-sage-600" />
             Bases y Condiciones
           </Link>

@@ -8,6 +8,8 @@
 -- Solo puede existir UNO con estado != 'sorteado'/'cancelado' (RN-01)
 create table if not exists sorteos (
   id uuid primary key default gen_random_uuid(),
+  titulo text,
+  descripcion text,
   premio text not null,
   precio_numero numeric(12,2) not null check (precio_numero > 0),
   cantidad_numeros integer not null check (cantidad_numeros > 0),
@@ -34,12 +36,11 @@ create table if not exists compras (
   telefono text not null,
   cantidad integer not null check (cantidad > 0),
   monto_total numeric(12,2) not null,
-  estado_pago text not null default 'reservado'
-    check (estado_pago in ('reservado', 'pagado', 'vencido', 'fallido', 'reembolsado')),
+  estado_pago text not null default 'pendiente'
+    check (estado_pago in ('pendiente', 'pagado', 'fallido', 'reembolsado')),
   mp_preference_id text,
   mp_payment_id text unique, -- unicidad = idempotencia del webhook Mercado Pago
   token_acceso text not null unique, -- acceso privado del participante
-  reservado_hasta timestamptz not null, -- ahora() + 10 minutos al crear (RN-05)
   created_at timestamptz not null default now()
 );
 

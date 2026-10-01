@@ -76,13 +76,12 @@ function getMockParticipantData(token: string): ParticipantData {
   const mockCompra: Compra = {
     id: "mock-compra-id",
     sorteo_id: MOCK_SORTEO_ACTIVO.id,
-    nombreCompleto: "Participante Demo",
+    nombre_completo: "Participante Demo",
     telefono: "1123456789",
     cantidad: 2,
     monto_total: MOCK_SORTEO_ACTIVO.precio_numero * 2,
     estado_pago: "pagado",
     token_acceso: token,
-    reservado_hasta: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
     created_at: new Date().toISOString(),
   } as any;
 

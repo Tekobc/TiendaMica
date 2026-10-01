@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Adonai BY TIENDA MICA — Sorteos Exclusivos",
-  description: "Participá de los sorteos exclusivos de indumentaria, accesorios y fragancias de Adonai BY TIENDA MICA. Transparencia y asignación automática.",
+  title: "Adonai BY TIENDA MICA — Dinámica Oficial",
+  description: "Participá de la dinámica oficial de Adonai BY TIENDA MICA con números automáticos, premios exclusivos y compra directa desde la web.",
   icons: {
     icon: "/favicon.ico",
   },

@@ -1,8 +1,10 @@
 export type SorteoEstado = 'activo' | 'completo' | 'sorteado' | 'cancelado';
-export type PagoEstado = 'reservado' | 'pagado' | 'vencido' | 'fallido' | 'reembolsado';
+export type PagoEstado = 'pendiente' | 'pagado' | 'fallido' | 'reembolsado';
 
 export interface Sorteo {
   id: string;
+  titulo?: string | null;
+  descripcion?: string | null;
   premio: string;
   precio_numero: number;
   cantidad_numeros: number;
@@ -34,7 +36,6 @@ export interface Compra {
   mp_preference_id?: string | null;
   mp_payment_id?: string | null;
   token_acceso: string;
-  reservado_hasta: string;
   created_at: string;
 }
 

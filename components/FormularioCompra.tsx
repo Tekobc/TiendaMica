@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Sorteo } from "@/lib/types";
+import { ProgressBar } from "@/components/ProgressBar";
 import { reservarNumerosAction } from "@/lib/actions/reservar-numeros";
 import {
   User,
@@ -43,6 +44,7 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
   const isCantidadValid = cantidad >= 1 && cantidad <= maxPermitido;
 
   const totalCalculado = cantidad * sorteo.precio_numero;
+  const ocupados = sorteo.cantidad_numeros - disponibles;
   const canSubmit = isNombreValid && isPhoneValid && isCantidadValid && aceptaTerminos && !loading;
 
   // Avance dinámico de foco (CONTEXT.md Sección 9.2):
@@ -236,6 +238,12 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
         </div>
       </div>
 
+      <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
+
+      <div className="p-3 rounded-2xl bg-sage-50/70 border border-sage-200 text-[11px] text-sage-800 leading-relaxed">
+        Pago seguro con Mercado Pago • Tu número se asigna automáticamente al confirmarse el pago.
+      </div>
+
       {/* Resumen de cobro calculado en tiempo real (RN-03) */}
       <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-100 flex items-center justify-between">
         <div>
@@ -266,13 +274,13 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
         <span>
           Soy mayor de 18 años y acepto las{" "}
           <Link
-            href="/sorteos/bases-y-condiciones"
+            href="/dinamica/bases-y-condiciones"
             target="_blank"
             className="text-mica-600 font-medium hover:underline inline-flex items-center gap-0.5"
           >
             Bases y Condiciones <ExternalLink className="w-3 h-3 inline" />
           </Link>{" "}
-          del sorteo de Adonai BY TIENDA MICA.
+          de la dinámica de Adonai BY TIENDA MICA.
         </span>
       </label>
 
@@ -285,7 +293,7 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
         {loading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Reservando números y conectando con Mercado Pago...</span>
+            <span>Procesando tu pago con Mercado Pago...</span>
           </>
         ) : (
           <>
@@ -294,10 +302,6 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
           </>
         )}
       </button>
-
-      <p className="text-[11px] text-stone-400 text-center -mt-2">
-        🔒 Los números quedan reservados por 10 minutos al iniciar el pago.
-      </p>
     </form>
   );
 }

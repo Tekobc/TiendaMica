@@ -28,7 +28,7 @@ export async function createMercadoPagoPreference(params: CreatePreferenceParams
   } = params;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const returnUrl = `${siteUrl}/sorteos/mis-numeros/${tokenAcceso}`;
+  const returnUrl = `${siteUrl}/dinamica/mis-numeros/${tokenAcceso}`;
   const webhookUrl = `${siteUrl}/api/mp/webhook`;
 
   // Si no hay token de MP configurado, retornamos URL de fallback para pruebas locales
@@ -48,8 +48,8 @@ export async function createMercadoPagoPreference(params: CreatePreferenceParams
       items: [
         {
           id: compraId,
-          title: `Sorteo Adonai: ${premio}`,
-          description: `${cantidad} número(s) para sorteo de ${premio}`,
+          title: `Dinámica Adonai: ${premio}`,
+          description: `${cantidad} número(s) para la dinámica ${premio}`,
           quantity: cantidad,
           unit_price: Number(precioUnitario),
           currency_id: 'ARS',

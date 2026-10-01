@@ -40,6 +40,8 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
   const [searchTerm, setSearchTerm] = useState("");
 
   // Estado para edición del sorteo
+  const [titulo, setTitulo] = useState(data.sorteo.titulo || data.sorteo.premio);
+  const [descripcion, setDescripcion] = useState(data.sorteo.descripcion || "Participá comprando tu número");
   const [premio, setPremio] = useState(data.sorteo.premio);
   const [precioNumero, setPrecioNumero] = useState(data.sorteo.precio_numero);
   const [cantidadNumeros, setCantidadNumeros] = useState(data.sorteo.cantidad_numeros);
@@ -59,6 +61,8 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
 
   // Estado para nuevo sorteo
   const [showNuevoSorteo, setShowNuevoSorteo] = useState(false);
+  const [nuevoTitulo, setNuevoTitulo] = useState("");
+  const [nuevaDescripcion, setNuevaDescripcion] = useState("Participá comprando tu número");
   const [nuevoPremio, setNuevoPremio] = useState("");
   const [nuevoPrecio, setNuevoPrecio] = useState<number>(2500);
   const [nuevaCantidad, setNuevaCantidad] = useState<number>(100);
@@ -82,6 +86,8 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
 
     const res = await actualizarConfiguracionSorteo({
       sorteoId: data.sorteo.id,
+      titulo,
+      descripcion,
       premio,
       precioNumero: Number(precioNumero),
       cantidadNumeros: Number(cantidadNumeros),
@@ -94,6 +100,8 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
         ...prev,
         sorteo: {
           ...prev.sorteo,
+          titulo: titulo || premio,
+          descripcion: descripcion || "Participá comprando tu número",
           premio,
           precio_numero: Number(precioNumero),
           cantidad_numeros: Number(cantidadNumeros),
@@ -174,6 +182,8 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
     setNuevoMessage(null);
 
     const res = await abrirNuevoSorteo({
+      titulo: nuevoTitulo || nuevoPremio,
+      descripcion: nuevaDescripcion,
       premio: nuevoPremio,
       precioNumero: Number(nuevoPrecio),
       cantidadNumeros: Number(nuevaCantidad),
@@ -181,7 +191,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
     });
 
     if (res.ok) {
-      setNuevoMessage({ type: "success", text: "¡Nuevo sorteo creado! Recargá la página para verlo." });
+      setNuevoMessage({ type: "success", text: "¡Nueva dinámica creada! Recargá la página para verla." });
       setShowNuevoSorteo(false);
       // Recargar la página para mostrar el nuevo sorteo
       setTimeout(() => window.location.reload(), 1500);
@@ -244,14 +254,14 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 mt-1">
-            Gestión de Sorteos &amp; Participantes
+            Gestión de la Dinámica &amp; Participantes
           </h1>
           <p className="text-xs text-stone-400 mt-0.5">Sesión: {adminEmail}</p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
-            href="/sorteos"
+            href="/dinamica"
             target="_blank"
             className="py-2.5 px-4 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-1.5 shadow-2xs"
           >
@@ -303,7 +313,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 font-medium block">Reservas Pendientes</span>
+            <span className="text-xs text-stone-400 font-medium block">Pagos Pendientes</span>
             <span className="text-2xl font-bold font-serif text-stone-900">
               {data.metricas.pendientes}
             </span>
@@ -315,7 +325,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
             <AlertCircle className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 font-medium block">Vencidos / Fallidos</span>
+            <span className="text-xs text-stone-400 font-medium block">Fallidos / Reembolsados</span>
             <span className="text-2xl font-bold font-serif text-stone-900">
               {data.metricas.vencidos}
             </span>
@@ -329,7 +339,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
           <div>
             <h2 className="text-lg font-serif font-bold text-stone-900 flex items-center gap-2">
               <Trophy className="w-5 h-5 text-amber-500" />
-              Número Ganador del Sorteo
+              Número Ganador de la Dinámica
             </h2>
             <p className="text-xs text-stone-500 mt-0.5">
               Se carga una única vez. Inalterable una vez registrado (RN-07).
@@ -370,7 +380,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
                 <p className="font-semibold text-stone-900 text-sm">{participanteGanador.nombreCompleto}</p>
                 <p className="text-xs text-stone-500 mt-0.5">Teléfono: {participanteGanador.telefono}</p>
                 <a
-                  href={`https://wa.me/549${participanteGanador.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(`¡Hola ${participanteGanador.nombreCompleto}! 🎉 Queremos informarte que el número #${ganadorNumero} resultó ganador del sorteo de ${data.sorteo.premio}. ¡Felicitaciones desde Adonai BY TIENDA MICA! Por favor respondé este mensaje para coordinar la entrega de tu premio.`)}`}
+                  href={`https://wa.me/549${participanteGanador.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(`¡Hola ${participanteGanador.nombreCompleto}! 🎉 Queremos informarte que el número #${ganadorNumero} resultó ganador de la dinámica de ${data.sorteo.premio}. ¡Felicitaciones desde Adonai BY TIENDA MICA! Por favor respondé este mensaje para coordinar la entrega de tu premio.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition-colors"
@@ -449,12 +459,47 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
         )}
       </section>
 
+      <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-rose-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 className="text-lg font-serif font-bold text-stone-900">
+              Historial de dinámicas anteriores
+            </h2>
+            <p className="text-xs text-stone-500">
+              Resultados cerrados y ganadores de ediciones previas.
+            </p>
+          </div>
+        </div>
+
+        {data.historial.length === 0 ? (
+          <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-stone-500 text-xs">
+            Todavía no hay dinámicas cerradas en el historial.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {data.historial.map((item) => (
+              <div key={item.id} className="rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50/60 to-white p-4">
+                <div className="flex items-center justify-between text-[11px] text-stone-500 mb-3">
+                  <span>{new Date(item.ganador_cargado_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
+                  <span className="bg-sage-100 text-sage-700 px-2 py-0.5 rounded-full font-medium">Finalizada</span>
+                </div>
+                <h3 className="text-sm font-semibold text-stone-800 line-clamp-2">{item.premio}</h3>
+                <div className="mt-4 flex items-center justify-between border-t border-rose-100 pt-3 text-xs text-stone-500">
+                  <span>Número ganador</span>
+                  <span className="font-bold text-mica-700">#{String(item.numero_ganador).padStart(2, "0")}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Configuración del Sorteo (RN-02) */}
       <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-rose-100">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
             <h2 className="text-lg font-serif font-bold text-stone-900">
-              Configuración del Sorteo Activo
+              Configuración de la Dinámica Activa
             </h2>
             <p className="text-xs text-stone-500">
               Parámetros del premio, valor del número y topes de compra.
@@ -474,7 +519,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
             <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
               <strong>Inmutabilidad activada (RN-02):</strong> Ya se registró el primer pago aprobado para
-              este sorteo. Los campos de premio, precio y cantidad de números quedan bloqueados para
+              esta dinámica. Los campos de premio, precio y cantidad de números quedan bloqueados para
               garantizar la transparencia legal hacia los compradores.
             </span>
           </div>
@@ -493,6 +538,32 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
         )}
 
         <form onSubmit={handleSaveConfig} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Título de la Dinámica
+            </label>
+            <input
+              type="text"
+              disabled={isBloqueado}
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-mica-400 focus:bg-white disabled:bg-stone-100 disabled:text-stone-400 disabled:cursor-not-allowed"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-semibold text-stone-700 mb-1">
+              Descripción breve
+            </label>
+            <input
+              type="text"
+              disabled={isBloqueado}
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-mica-400 focus:bg-white disabled:bg-stone-100 disabled:text-stone-400 disabled:cursor-not-allowed"
+            />
+          </div>
+
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-stone-700 mb-1">
               Nombre del Premio
@@ -553,10 +624,10 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
             <div>
               <h2 className="text-lg font-serif font-bold text-stone-900 flex items-center gap-2">
                 <PlusCircle className="w-5 h-5 text-emerald-600" />
-                Abrir Nuevo Sorteo
+                Abrir Nueva Dinámica
               </h2>
               <p className="text-xs text-stone-500 mt-0.5">
-                El sorteo actual está en estado &quot;{data.sorteo.estado}&quot;. Podés iniciar uno nuevo.
+                La dinámica actual está en estado &quot;{data.sorteo.estado}&quot;. Podés iniciar una nueva.
               </p>
             </div>
             {!showNuevoSorteo && (
@@ -565,7 +636,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
                 className="py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
-                Configurar Nuevo Sorteo
+                Configurar Nueva Dinámica
               </button>
             )}
           </div>
@@ -586,6 +657,28 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Título de la Dinámica</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Gran Rifa Adonai"
+                    value={nuevoTitulo}
+                    onChange={(e) => setNuevoTitulo(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Descripción breve</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Participá comprando tu número"
+                    value={nuevaDescripcion}
+                    onChange={(e) => setNuevaDescripcion(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white"
+                  />
+                </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-stone-700 mb-1">Premio</label>
                   <input
@@ -639,7 +732,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
                   disabled={savingNuevo}
                   className="py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  {savingNuevo ? "Creando sorteo..." : "Crear y Activar Sorteo"}
+                  {savingNuevo ? "Creando dinámica..." : "Crear y Activar Dinámica"}
                 </button>
                 <button
                   type="button"
@@ -719,7 +812,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
                     `Hola ${p.nombreCompleto}! Te escribimos desde Adonai BY TIENDA MICA en relación a tu compra de números (#${p.compraId.slice(
                       0,
                       8
-                    )}) para el sorteo de ${data.sorteo.premio}.`
+                    )}) para la dinámica de ${data.sorteo.premio}.`
                   );
 
                   return (
@@ -817,7 +910,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
                           className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
                             p.estadoPago === "pagado"
                               ? "bg-emerald-100 text-emerald-800"
-                              : p.estadoPago === "reservado"
+                              : p.estadoPago === "pendiente"
                               ? "bg-amber-100 text-amber-800"
                               : "bg-stone-100 text-stone-500"
                           }`}

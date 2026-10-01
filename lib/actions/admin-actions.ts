@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getActiveSorteo, MOCK_SORTEO_ACTIVO } from "@/lib/mock-data";
-import { Sorteo, Compra } from "@/lib/types";
+import { getActiveSorteo, getHistorialSorteos, MOCK_SORTEO_ACTIVO, MOCK_HISTORIAL } from "@/lib/mock-data";
+import { Sorteo, Compra, SorteoHistorialItem } from "@/lib/types";
 
 export interface AdminParticipanteRow {
   compraId: string;
@@ -28,6 +28,7 @@ export interface AdminDashboardData {
     vencidos: number;
   };
   participantes: AdminParticipanteRow[];
+  historial: SorteoHistorialItem[];
 }
 
 export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
@@ -37,7 +38,10 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
     // 1. Sorteo actual
     const sorteo = await getActiveSorteo();
 
-    // 2. Compras del sorteo
+    // 2. Historial de dinámicas anteriores
+    const historial = await getHistorialSorteos();
+
+    // 3. Compras del sorteo
     const { data: comprasData, error: comprasErr } = await supabase
       .from("compras")
       .select("*")
@@ -70,9 +74,9 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
       const monto = Number(c.monto_total);
       if (c.estado_pago === "pagado") {
         totalRecaudado += monto;
-      } else if (c.estado_pago === "reservado") {
+      } else if (c.estado_pago === "pendiente") {
         pendientes++;
-      } else if (c.estado_pago === "vencido" || c.estado_pago === "fallido") {
+      } else if (c.estado_pago === "fallido" || c.estado_pago === "reembolsado") {
         vencidos++;
       }
 
@@ -101,6 +105,7 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
         vencidos,
       },
       participantes,
+      historial,
     };
   } catch (err) {
     console.warn("[Admin Action] Error conectando con BD, usando datos mockeados:", err);
@@ -111,6 +116,8 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
 // RN-02: Al registrarse el primer pago aprobado, precio_numero, premio y cantidad_numeros quedan inmutables
 export async function actualizarConfiguracionSorteo(formData: {
   sorteoId: string;
+  titulo: string;
+  descripcion: string;
   premio: string;
   precioNumero: number;
   cantidadNumeros: number;
@@ -137,11 +144,15 @@ export async function actualizarConfiguracionSorteo(formData: {
       };
     }
 
-    const descripcionAuto = `Sorteo de ${formData.premio} — $${formData.precioNumero.toLocaleString("es-AR")} por número`;
+    const tituloFinal = formData.titulo?.trim() || formData.premio.trim();
+    const descripcionFinal = formData.descripcion?.trim() || "Participá comprando tu número";
+    const descripcionAuto = `${tituloFinal} — $${formData.precioNumero.toLocaleString("es-AR")} por número`;
 
     const { error: updateErr } = await supabase
       .from("sorteos")
       .update({
+        titulo: tituloFinal,
+        descripcion: descripcionFinal,
         premio: formData.premio,
         precio_numero: formData.precioNumero,
         cantidad_numeros: formData.cantidadNumeros,
@@ -155,7 +166,7 @@ export async function actualizarConfiguracionSorteo(formData: {
     }
 
     revalidatePath("/admin");
-    revalidatePath("/sorteos");
+    revalidatePath("/dinamica");
     return { ok: true };
   } catch (err: any) {
     return { ok: false, error: err.message || "Error al actualizar la configuración." };
@@ -250,7 +261,7 @@ export async function cargarGanador(
     }
 
     revalidatePath("/admin");
-    revalidatePath("/sorteos");
+    revalidatePath("/dinamica");
     return { ok: true, ganador: numeroGanador };
   } catch (err: any) {
     return { ok: false, error: err.message || "Error al cargar el ganador." };
@@ -259,6 +270,8 @@ export async function cargarGanador(
 
 // Sección 9.4: Abrir nuevo sorteo solo cuando el actual está en estado 'sorteado' o 'cancelado'
 export async function abrirNuevoSorteo(config: {
+  titulo: string;
+  descripcion: string;
   premio: string;
   precioNumero: number;
   cantidadNumeros: number;
@@ -302,12 +315,16 @@ export async function abrirNuevoSorteo(config: {
       };
     }
 
-    const descripcionAuto = `Sorteo de ${config.premio} — $${config.precioNumero.toLocaleString("es-AR")} por número`;
+    const tituloFinal = config.titulo?.trim() || config.premio.trim();
+    const descripcionFinal = config.descripcion?.trim() || "Participá comprando tu número";
+    const descripcionAuto = `${tituloFinal} — $${config.precioNumero.toLocaleString("es-AR")} por número`;
 
     // Crear el nuevo sorteo
     const { data: nuevoSorteo, error: sorteoErr } = await supabase
       .from("sorteos")
       .insert({
+        titulo: tituloFinal,
+        descripcion: descripcionFinal,
         premio: config.premio.trim(),
         precio_numero: config.precioNumero,
         cantidad_numeros: config.cantidadNumeros,
@@ -342,7 +359,7 @@ export async function abrirNuevoSorteo(config: {
     }
 
     revalidatePath("/admin");
-    revalidatePath("/sorteos");
+    revalidatePath("/dinamica");
     return { ok: true, sorteoId: nuevoSorteo.id };
   } catch (err: any) {
     return { ok: false, error: err.message || "Error al abrir el nuevo sorteo." };
@@ -392,7 +409,7 @@ function getMockAdminDashboard(): AdminDashboardData {
         telefono: "1192837465",
         cantidad: 1,
         montoTotal: 2500,
-        estadoPago: "reservado",
+        estadoPago: "pendiente",
         numeros: [12],
         createdAt: new Date(Date.now() - 300000).toISOString(),
         tokenAcceso: "demo-token-3",
@@ -403,12 +420,13 @@ function getMockAdminDashboard(): AdminDashboardData {
         telefono: "1167483920",
         cantidad: 2,
         montoTotal: 5000,
-        estadoPago: "vencido",
+        estadoPago: "reembolsado",
         numeros: [],
         createdAt: new Date(Date.now() - 1800000).toISOString(),
         tokenAcceso: "demo-token-4",
       },
     ],
+    historial: MOCK_HISTORIAL,
   };
 }
 

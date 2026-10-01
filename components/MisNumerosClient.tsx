@@ -44,11 +44,11 @@ export function MisNumerosClient({
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pb-12">
       <Link
-        href="/sorteos"
+        href="/dinamica"
         className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-mica-600 transition-colors w-fit"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Volver a la portada del sorteo</span>
+        <span>Volver a la portada de la dinámica</span>
       </Link>
 
       {/* Estado del Pago */}
@@ -112,17 +112,17 @@ export function MisNumerosClient({
         </section>
       )}
 
-      {compra.estado_pago === "reservado" && (
+      {compra.estado_pago === "pendiente" && (
         <section className="bg-gradient-to-br from-amber-50 via-white to-rose-50 border border-amber-200 rounded-3xl p-6 sm:p-8 shadow-xs">
           <div className="flex items-center gap-2.5 text-amber-700 text-xs font-bold uppercase tracking-wider mb-2">
             <Clock className="w-4 h-4 text-amber-600 animate-spin" />
-            <span>Reserva en curso</span>
+            <span>Pago en procesamiento</span>
           </div>
           <h1 className="text-2xl font-serif font-bold text-stone-900 mb-2">
-            Tu reserva está siendo procesada
+            Tu pago está siendo validado
           </h1>
           <p className="text-sm text-stone-600 mb-4">
-            Estamos esperando la confirmación de acreditación de Mercado Pago. Si acabás de abonar, esta pantalla se actualizará automáticamente.
+            Estamos verificando la acreditación de Mercado Pago. Si acabás de abonar, recargá esta pantalla en unos segundos.
           </p>
           <div className="flex gap-2">
             <button
@@ -135,23 +135,23 @@ export function MisNumerosClient({
         </section>
       )}
 
-      {(compra.estado_pago === "fallido" || compra.estado_pago === "vencido") && (
+      {(compra.estado_pago === "fallido" || compra.estado_pago === "reembolsado") && (
         <section className="bg-gradient-to-br from-red-50 via-white to-stone-50 border border-red-200 rounded-3xl p-6 sm:p-8 shadow-xs">
           <div className="flex items-center gap-2.5 text-red-700 text-xs font-bold uppercase tracking-wider mb-2">
             <AlertTriangle className="w-4 h-4 text-red-600" />
-            <span>Pago no completado o reserva vencida</span>
+            <span>Pago no completado o reembolso emitido</span>
           </div>
           <h1 className="text-2xl font-serif font-bold text-stone-900 mb-2">
-            No se pudo completar el pago
+            No se pudo completar la compra
           </h1>
           <p className="text-sm text-stone-600 mb-5">
-            El plazo de reserva de 10 minutos caducó o la operación fue rechazada por el medio de pago. Podés volver al sorteo para intentarlo nuevamente.
+            La operación fue rechazada por el medio de pago o se reembolsó por falta de stock disponible. Podés volver a la dinámica para intentarlo nuevamente.
           </p>
           <Link
-            href="/sorteos"
+            href="/dinamica"
             className="py-3 px-5 rounded-2xl bg-mica-600 text-white text-sm font-semibold hover:bg-mica-700 transition-colors inline-block"
           >
-            Volver a reservar números
+            Volver a la dinámica
           </Link>
         </section>
       )}
@@ -164,7 +164,7 @@ export function MisNumerosClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
             <h2 className="text-lg font-serif font-bold text-stone-900">
-              Tablero del Sorteo
+              Tablero de la Dinámica
             </h2>
             <p className="text-xs text-stone-500">
               Tus números asignados están destacados en color rosa intenso.
@@ -217,7 +217,7 @@ export function MisNumerosClient({
         </div>
         <a
           href={`https://wa.me/5491123456789?text=${encodeURIComponent(
-            `Hola! Compré números para el sorteo de ${sorteo.premio}. Mi compra es #${compra.id.slice(0, 8)}.`
+            `Hola! Compré números para la dinámica de ${sorteo.premio}. Mi compra es #${compra.id.slice(0, 8)}.`
           )}`}
           target="_blank"
           rel="noopener noreferrer"

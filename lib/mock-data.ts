@@ -3,11 +3,13 @@ import { createClient } from './supabase/server';
 
 export const MOCK_SORTEO_ACTIVO: Sorteo = {
   id: 'b0000000-0000-0000-0000-000000000001',
+  titulo: 'Gran Rifa Adonai',
+  descripcion: 'Participá comprando tu número',
   premio: 'Box Exclusiva Adonai: Vestido Primavera + Accesorios & Fragancia de Autor',
   precio_numero: 2500,
   cantidad_numeros: 100,
   tope_por_compra: 10,
-  descripcion_auto: 'Sorteo de Box Exclusiva Adonai: Vestido Primavera + Accesorios & Fragancia de Autor — $2.500 por número',
+  descripcion_auto: 'Gran Rifa Adonai — $2.500 por número',
   estado: 'activo',
   bloqueado: false,
   numero_ganador: null,

@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
           Acceso Administrador
         </h1>
         <p className="text-xs text-stone-500 mb-6">
-          Ingreso exclusivo para gestión de sorteos, participantes y métricas de recaudación.
+          Ingreso exclusivo para gestión de la dinámica, participantes y métricas de recaudación.
         </p>
 
         {error && (
@@ -118,7 +118,7 @@ export default function AdminLoginPage() {
         </div>
 
         <a
-          href="/sorteos"
+          href="/dinamica"
           className="mt-6 text-xs text-stone-500 hover:text-mica-600 transition-colors"
         >
           &larr; Volver al sitio público
