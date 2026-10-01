@@ -11,9 +11,11 @@ export async function middleware(request: NextRequest) {
     request: { headers: request.headers },
   });
 
-  const devCookie = request.cookies.get("admin_dev_session")?.value;
+  const devCookie = process.env.NODE_ENV !== "production"
+    ? request.cookies.get("admin_dev_session")?.value
+    : undefined;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   let user: any = null;
 

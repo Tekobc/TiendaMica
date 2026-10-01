@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getActiveSorteo, getHistorialSorteos, MOCK_SORTEO_ACTIVO, MOCK_HISTORIAL } from "@/lib/mock-data";
 import { Sorteo, Compra, SorteoHistorialItem } from "@/lib/types";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 
 export interface AdminParticipanteRow {
   compraId: string;
@@ -19,7 +20,7 @@ export interface AdminParticipanteRow {
 }
 
 export interface AdminDashboardData {
-  sorteo: Sorteo;
+  sorteo: Sorteo | null;
   metricas: {
     totalRecaudado: number;
     vendidos: number;
@@ -33,6 +34,9 @@ export interface AdminDashboardData {
 
 export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
   try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin?.isAuthorized) throw new Error("No autorizado.");
+
     const supabase = createAdminClient();
 
     // 1. Sorteo actual
@@ -40,6 +44,15 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
 
     // 2. Historial de dinámicas anteriores
     const historial = await getHistorialSorteos();
+
+    if (!sorteo) {
+      return {
+        sorteo: null,
+        metricas: { totalRecaudado: 0, vendidos: 0, disponibles: 0, pendientes: 0, vencidos: 0 },
+        participantes: [],
+        historial,
+      };
+    }
 
     // 3. Compras del sorteo
     const { data: comprasData, error: comprasErr } = await supabase
@@ -108,6 +121,9 @@ export async function obtenerDashboardAdmin(): Promise<AdminDashboardData> {
       historial,
     };
   } catch (err) {
+    if (process.env.NODE_ENV === "production") {
+      throw err;
+    }
     console.warn("[Admin Action] Error conectando con BD, usando datos mockeados:", err);
     return getMockAdminDashboard();
   }
@@ -124,6 +140,9 @@ export async function actualizarConfiguracionSorteo(formData: {
   topePorCompra: number;
 }): Promise<{ ok: boolean; error?: string }> {
   try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin?.isAuthorized) return { ok: false, error: "No autorizado." };
+
     const supabase = createAdminClient();
 
     // 1. Validar si el sorteo está bloqueado
@@ -179,6 +198,9 @@ export async function actualizarTelefonoParticipante(
   nuevoTelefono: string
 ): Promise<{ ok: boolean; error?: string }> {
   try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin?.isAuthorized) return { ok: false, error: "No autorizado." };
+
     const cleaned = nuevoTelefono.replace(/\D/g, "");
     if (cleaned.length < 10) {
       return { ok: false, error: "El teléfono debe contener al menos 10 dígitos." };
@@ -205,10 +227,12 @@ export async function actualizarTelefonoParticipante(
 // Una vez cargado, no existe UI ni API que permita editarlo.
 export async function cargarGanador(
   sorteoId: string,
-  numeroGanador: number,
-  adminEmail: string
+  numeroGanador: number
 ): Promise<{ ok: boolean; error?: string; ganador?: number }> {
   try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin?.isAuthorized) return { ok: false, error: "No autorizado." };
+
     const supabase = createAdminClient();
 
     // 1. Verificar que el sorteo exista y NO tenga ya un ganador cargado (RN-07)
@@ -251,7 +275,7 @@ export async function cargarGanador(
       .update({
         numero_ganador: numeroGanador,
         ganador_cargado_at: new Date().toISOString(),
-        ganador_cargado_por: adminEmail,
+        ganador_cargado_por: admin.email,
         estado: "sorteado",
       })
       .eq("id", sorteoId);
@@ -278,6 +302,9 @@ export async function abrirNuevoSorteo(config: {
   topePorCompra: number;
 }): Promise<{ ok: boolean; error?: string; sorteoId?: string }> {
   try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin?.isAuthorized) return { ok: false, error: "No autorizado." };
+
     const supabase = createAdminClient();
 
     // Verificar que no haya un sorteo activo o completo (RN-01)
@@ -431,6 +458,8 @@ function getMockAdminDashboard(): AdminDashboardData {
 }
 
 export async function loginDevAdminAction(email = "admin@tiendamica.com.ar"): Promise<{ ok: boolean }> {
+  if (process.env.NODE_ENV === "production") return { ok: false };
+
   const cookieStore = await cookies();
   cookieStore.set("admin_dev_session", email, {
     path: "/",

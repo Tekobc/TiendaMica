@@ -1,5 +1,5 @@
 import { Sorteo, NumeroItem, SorteoHistorialItem } from './types';
-import { createClient } from './supabase/server';
+import { createAdminClient } from './supabase/admin';
 
 export const MOCK_SORTEO_ACTIVO: Sorteo = {
   id: 'b0000000-0000-0000-0000-000000000001',
@@ -58,9 +58,9 @@ export const MOCK_HISTORIAL: SorteoHistorialItem[] = [
   },
 ];
 
-export async function getActiveSorteo(): Promise<Sorteo> {
+export async function getActiveSorteo(): Promise<Sorteo | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('sorteos')
       .select('*')
@@ -69,30 +69,39 @@ export async function getActiveSorteo(): Promise<Sorteo> {
       .limit(1)
       .maybeSingle();
 
-    if (error || !data) {
-      return MOCK_SORTEO_ACTIVO;
+    if (error) {
+      if (process.env.NODE_ENV !== "production") return MOCK_SORTEO_ACTIVO;
+      throw error;
     }
+
+    if (!data) return process.env.NODE_ENV === "production" ? null : MOCK_SORTEO_ACTIVO;
 
     return {
       ...data,
       precio_numero: Number(data.precio_numero),
     } as Sorteo;
-  } catch {
-    return MOCK_SORTEO_ACTIVO;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") return MOCK_SORTEO_ACTIVO;
+    throw error;
   }
 }
 
 export async function getNumerosForSorteo(sorteoId: string, totalCount = 100): Promise<NumeroItem[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('numeros')
       .select('id, sorteo_id, numero, compra_id')
       .eq('sorteo_id', sorteoId)
       .order('numero', { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      return MOCK_NUMEROS;
+    if (error) {
+      if (process.env.NODE_ENV !== "production") return MOCK_NUMEROS;
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return process.env.NODE_ENV === "production" ? [] : MOCK_NUMEROS;
     }
 
     // Regla de Privacidad: Solo exponemos si está ocupado o no, nunca la compra_id ni datos personales
@@ -102,14 +111,15 @@ export async function getNumerosForSorteo(sorteoId: string, totalCount = 100): P
       numero: item.numero,
       ocupado: Boolean(item.compra_id),
     }));
-  } catch {
-    return MOCK_NUMEROS;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") return MOCK_NUMEROS;
+    throw error;
   }
 }
 
 export async function getHistorialSorteos(): Promise<SorteoHistorialItem[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('sorteos')
       .select('id, premio, numero_ganador, ganador_cargado_at, cantidad_numeros, precio_numero')
@@ -117,8 +127,13 @@ export async function getHistorialSorteos(): Promise<SorteoHistorialItem[]> {
       .not('numero_ganador', 'is', null)
       .order('ganador_cargado_at', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      return MOCK_HISTORIAL;
+    if (error) {
+      if (process.env.NODE_ENV !== "production") return MOCK_HISTORIAL;
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return process.env.NODE_ENV === "production" ? [] : MOCK_HISTORIAL;
     }
 
     return data.map((item) => ({
@@ -129,7 +144,8 @@ export async function getHistorialSorteos(): Promise<SorteoHistorialItem[]> {
       cantidad_numeros: item.cantidad_numeros,
       precio_numero: Number(item.precio_numero),
     }));
-  } catch {
-    return MOCK_HISTORIAL;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") return MOCK_HISTORIAL;
+    throw error;
   }
 }

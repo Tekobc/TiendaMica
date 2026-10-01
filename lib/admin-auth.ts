@@ -17,10 +17,12 @@ export async function getAuthenticatedAdmin(): Promise<AdminUser | null> {
     } = await supabase.auth.getUser();
 
     const cookieStore = await cookies();
-    const devCookie = cookieStore.get("admin_dev_session")?.value;
+    const devCookie = process.env.NODE_ENV !== "production"
+      ? cookieStore.get("admin_dev_session")?.value
+      : undefined;
 
     if (error || !user || !user.email) {
-      if (devCookie) {
+      if (devCookie && process.env.NODE_ENV !== "production") {
         return { email: devCookie, isAuthorized: true };
       }
       return null;
@@ -31,27 +33,28 @@ export async function getAuthenticatedAdmin(): Promise<AdminUser | null> {
     // Validar contra la whitelist en el servidor con service_role (CONTEXT.md Sección 10)
     try {
       const adminClient = createAdminClient();
-      const { data: whitelistEntry } = await adminClient
+      const { data: whitelistEntry, error: whitelistError } = await adminClient
         .from("admins_whitelist")
         .select("email")
         .eq("email", email)
         .maybeSingle();
 
-      if (!whitelistEntry) {
+      if (whitelistError || !whitelistEntry) {
         console.warn(`[Admin Auth] Acceso denegado: ${email} no figura en admins_whitelist.`);
         return { email, isAuthorized: false };
       }
 
       return { email, isAuthorized: true };
     } catch {
-      // Si Supabase admin client no está disponible o tabla no inicializada en local
-      return { email, isAuthorized: true };
+      return { email, isAuthorized: false };
     }
   } catch (e) {
     try {
       const cookieStore = await cookies();
-      const devCookie = cookieStore.get("admin_dev_session")?.value;
-      if (devCookie) {
+      const devCookie = process.env.NODE_ENV !== "production"
+        ? cookieStore.get("admin_dev_session")?.value
+        : undefined;
+      if (devCookie && process.env.NODE_ENV !== "production") {
         return { email: devCookie, isAuthorized: true };
       }
     } catch {}

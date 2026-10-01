@@ -22,7 +22,7 @@ export async function getParticipantData(token: string): Promise<ParticipantData
 
     if (compraErr || !compraData) {
       console.warn("[Participante] Compra no encontrada con token:", token);
-      return getMockParticipantData(token);
+      return process.env.NODE_ENV === "production" ? null : getMockParticipantData(token);
     }
 
     const compra = {
@@ -40,6 +40,10 @@ export async function getParticipantData(token: string): Promise<ParticipantData
     const sorteo = sorteoData
       ? ({ ...sorteoData, precio_numero: Number(sorteoData.precio_numero) } as Sorteo)
       : await getActiveSorteo();
+
+    if (!sorteo) {
+      return process.env.NODE_ENV === "production" ? null : getMockParticipantData(token);
+    }
 
     // 3. Obtener los números del sorteo e identificar los asignados a esta compra
     const { data: numerosData } = await supabase
@@ -67,7 +71,7 @@ export async function getParticipantData(token: string): Promise<ParticipantData
       todosLosNumeros,
     };
   } catch {
-    return getMockParticipantData(token);
+    return process.env.NODE_ENV === "production" ? null : getMockParticipantData(token);
   }
 }
 

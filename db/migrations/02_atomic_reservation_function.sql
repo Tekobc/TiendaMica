@@ -14,7 +14,7 @@ create or replace function crear_compra_pendiente(
 )
 returns uuid
 language plpgsql
-security definer
+security invoker
 as $$
 declare
   v_compra_id uuid;
@@ -43,3 +43,5 @@ end;
 $$;
 
 -- La lógica de asignación atómica queda en el webhook, no en una "reserva" previa.
+revoke all on function crear_compra_pendiente(uuid, integer, text, text, text, numeric) from public, anon, authenticated;
+grant execute on function crear_compra_pendiente(uuid, integer, text, text, text, numeric) to service_role;

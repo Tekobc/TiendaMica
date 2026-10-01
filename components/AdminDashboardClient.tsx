@@ -29,6 +29,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
+import type { Sorteo } from "@/lib/types";
 
 interface AdminDashboardClientProps {
   initialData: AdminDashboardData;
@@ -36,6 +37,27 @@ interface AdminDashboardClientProps {
 }
 
 export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboardClientProps) {
+  if (!initialData.sorteo) {
+    return <AdminEmptyDashboard adminEmail={adminEmail} />;
+  }
+
+  return (
+    <AdminDashboardWithSorteo
+      initialData={{ ...initialData, sorteo: initialData.sorteo }}
+      adminEmail={adminEmail}
+    />
+  );
+}
+
+type AdminDashboardWithSorteoData = Omit<AdminDashboardData, "sorteo"> & { sorteo: Sorteo };
+
+function AdminDashboardWithSorteo({
+  initialData,
+  adminEmail,
+}: {
+  initialData: AdminDashboardWithSorteoData;
+  adminEmail: string;
+}) {
   const [data, setData] = useState(initialData);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -152,7 +174,7 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
     setSavingGanador(true);
     setGanadorMessage(null);
 
-    const res = await cargarGanador(data.sorteo.id, num, adminEmail);
+    const res = await cargarGanador(data.sorteo.id, num);
 
     if (res.ok) {
       setData((prev) => ({
@@ -941,5 +963,90 @@ export function AdminDashboardClient({ initialData, adminEmail }: AdminDashboard
         </div>
       </section>
     </div>
+  );
+}
+
+function AdminEmptyDashboard({ adminEmail }: { adminEmail: string }) {
+  const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("Participá comprando tu número");
+  const [premio, setPremio] = useState("");
+  const [precio, setPrecio] = useState(2500);
+  const [cantidad, setCantidad] = useState(100);
+  const [tope, setTope] = useState(5);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSaving(true);
+    setMessage(null);
+
+    const result = await abrirNuevoSorteo({
+      titulo: titulo || premio,
+      descripcion,
+      premio,
+      precioNumero: precio,
+      cantidadNumeros: cantidad,
+      topePorCompra: tope,
+    });
+
+    if (result.ok) {
+      setMessage({ type: "success", text: "Dinámica creada. Actualizando el panel..." });
+      window.location.reload();
+      return;
+    }
+
+    setMessage({ type: "error", text: result.error || "No se pudo crear la dinámica." });
+    setSaving(false);
+  };
+
+  return (
+    <main className="max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
+      <header className="mb-8 border-b border-rose-100 pb-5">
+        <p className="text-xs font-bold uppercase text-mica-700">ADONAI BY TIENDA MICA</p>
+        <h1 className="mt-2 text-2xl font-serif font-bold text-stone-900">Crear primera dinámica</h1>
+        <p className="mt-1 text-xs text-stone-500">Sesión: {adminEmail}</p>
+      </header>
+
+      <section className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-7">
+        <p className="mb-5 text-sm text-stone-600">La base de datos está lista y todavía no tiene dinámicas.</p>
+        {message && (
+          <p className={`mb-4 rounded-lg border p-3 text-sm ${message.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-700"}`}>
+            {message.text}
+          </p>
+        )}
+        <form onSubmit={handleCreate} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="sm:col-span-2 text-xs font-semibold text-stone-700">
+            Título
+            <input required value={titulo} onChange={(event) => setTitulo(event.target.value)} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <label className="sm:col-span-2 text-xs font-semibold text-stone-700">
+            Descripción
+            <input required value={descripcion} onChange={(event) => setDescripcion(event.target.value)} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <label className="sm:col-span-2 text-xs font-semibold text-stone-700">
+            Premio
+            <input required value={premio} onChange={(event) => setPremio(event.target.value)} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <label className="text-xs font-semibold text-stone-700">
+            Precio por número (ARS)
+            <input required type="number" min={1} value={precio} onChange={(event) => setPrecio(Number(event.target.value))} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <label className="text-xs font-semibold text-stone-700">
+            Cantidad de números
+            <input required type="number" min={10} max={10000} value={cantidad} onChange={(event) => setCantidad(Number(event.target.value))} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <label className="text-xs font-semibold text-stone-700">
+            Tope por compra
+            <input required type="number" min={1} max={cantidad} value={tope} onChange={(event) => setTope(Number(event.target.value))} className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm font-normal" />
+          </label>
+          <div className="sm:col-span-2">
+            <button type="submit" disabled={saving} className="rounded-lg bg-stone-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">
+              {saving ? "Creando..." : "Crear y activar dinámica"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
   );
 }

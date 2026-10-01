@@ -72,22 +72,17 @@ alter table numeros enable row level security;
 alter table compras enable row level security;
 alter table admins_whitelist enable row level security;
 
--- Sorteos: Lectura pública permitida
-create policy "Sorteos: lectura pública"
-  on sorteos for select
-  using (true);
-
--- Números: Lectura pública permitida (solo id, sorteo_id, numero y si está ocupado, sin exponer compra_id)
-create policy "Numeros: lectura pública"
-  on numeros for select
-  using (true);
-
--- Compras: Sin lectura pública directa por anon. Acceso solo via service_role o Server Actions con token_acceso
+-- Las consultas de la aplicación pasan por el servidor con service_role.
 create policy "Compras: solo service_role"
-  on compras for all
-  using (auth.role() = 'service_role');
+  on compras for all to service_role
+  using (true)
+  with check (true);
 
 -- Whitelist: Solo service_role
 create policy "Admins: solo service_role"
-  on admins_whitelist for all
-  using (auth.role() = 'service_role');
+  on admins_whitelist for all to service_role
+  using (true)
+  with check (true);
+
+grant usage on schema public to service_role;
+grant all privileges on all tables in schema public to service_role;

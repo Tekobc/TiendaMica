@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createMercadoPagoPreference } from "@/lib/mercadopago";
-import { getActiveSorteo, MOCK_SORTEO_ACTIVO } from "@/lib/mock-data";
+import { getActiveSorteo } from "@/lib/mock-data";
 
 export interface ReservarNumerosInput {
   sorteoId: string;
@@ -40,7 +40,7 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
 
     // 3. Obtener datos del sorteo para cálculo y validación
     const sorteo = await getActiveSorteo();
-    if (sorteo.id !== sorteoId || sorteo.estado !== "activo") {
+    if (!sorteo || sorteo.id !== sorteoId || sorteo.estado !== "activo") {
       return { ok: false, error: "El sorteo solicitado no está activo." };
     }
 
@@ -60,8 +60,13 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
     let modoSimulado = false;
 
     const hasSupabaseConfig = Boolean(
-      process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)
     );
+
+    if (!hasSupabaseConfig && process.env.NODE_ENV === "production") {
+      return { ok: false, error: "La conexión de pagos todavía no está configurada." };
+    }
 
     if (hasSupabaseConfig) {
       try {

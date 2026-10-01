@@ -7,6 +7,22 @@ export const revalidate = 0; // Datos dinámicos para disponibilidad en tiempo r
 
 export default async function DinamicaPage() {
   const sorteo = await getActiveSorteo();
+
+  if (!sorteo) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex flex-1 items-center justify-center px-4 py-16">
+          <section className="max-w-xl text-center">
+            <h1 className="font-serif text-2xl font-bold text-stone-900">Próxima dinámica en preparación</h1>
+            <p className="mt-3 text-sm text-stone-600">Todavía no hay una dinámica activa. Volvé pronto para conocer los detalles.</p>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   const numeros = await getNumerosForSorteo(sorteo.id, sorteo.cantidad_numeros);
 
   return (

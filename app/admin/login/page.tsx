@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
           <span>Iniciar sesión con Google</span>
         </button>
 
-        {/* Acceso de Prueba / Sandbox (Fase 2 MVP) */}
+        {process.env.NODE_ENV !== "production" && (
         <div className="w-full mt-4 pt-4 border-t border-stone-100 flex flex-col gap-2">
           <button
             type="button"
@@ -116,6 +116,7 @@ export default function AdminLoginPage() {
             Habilitado para pruebas del circuito completo sin OAuth externo
           </span>
         </div>
+        )}
 
         <a
           href="/dinamica"

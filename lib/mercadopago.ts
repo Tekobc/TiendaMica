@@ -33,6 +33,9 @@ export async function createMercadoPagoPreference(params: CreatePreferenceParams
 
   // Si no hay token de MP configurado, retornamos URL de fallback para pruebas locales
   if (!process.env.MP_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN.startsWith('TEST-your')) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Mercado Pago no está configurado para producción.');
+    }
     console.warn('[MercadoPago] MP_ACCESS_TOKEN no configurado o usando valor por defecto. Modo simulado.');
     return {
       id: `pref-mock-${compraId}`,
@@ -93,6 +96,9 @@ export async function createMercadoPagoPreference(params: CreatePreferenceParams
 
 export async function getMercadoPagoPayment(paymentId: string | number) {
   if (!process.env.MP_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN.startsWith('TEST-your')) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Mercado Pago no está configurado para producción.');
+    }
     // Modo simulación local
     return {
       id: paymentId,
@@ -109,6 +115,9 @@ export async function getMercadoPagoPayment(paymentId: string | number) {
 
 export async function refundMercadoPagoPayment(paymentId: string | number) {
   if (!process.env.MP_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN.startsWith('TEST-your')) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Mercado Pago no está configurado para producción.');
+    }
     console.warn('[MercadoPago] Reembolso simulado para:', paymentId);
     return { status: 'refunded' };
   }
