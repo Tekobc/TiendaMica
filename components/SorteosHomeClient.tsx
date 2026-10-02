@@ -100,7 +100,7 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
         </div>
         <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
         <div className="mt-5">
-          <FormularioCompra sorteo={sorteo} disponibles={disponibles} />
+          <FormularioCompra sorteo={sorteo} disponibles={disponibles} mostrarProgreso={false} />
         </div>
       </section>
 

@@ -21,9 +21,10 @@ interface FormularioCompraProps {
   sorteo: Sorteo;
   disponibles: number;
   onSuccess?: (initPoint: string) => void;
+  mostrarProgreso?: boolean;
 }
 
-export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioCompraProps) {
+export function FormularioCompra({ sorteo, disponibles, onSuccess, mostrarProgreso = true }: FormularioCompraProps) {
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [telefono, setTelefono] = useState("");
   const [cantidad, setCantidad] = useState(1);
@@ -44,7 +45,6 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
   const isCantidadValid = cantidad >= 1 && cantidad <= maxPermitido;
 
   const totalCalculado = cantidad * sorteo.precio_numero;
-  const ocupados = sorteo.cantidad_numeros - disponibles;
   const canSubmit = isNombreValid && isPhoneValid && isCantidadValid && aceptaTerminos && !loading;
 
   // Avance dinámico de foco (CONTEXT.md Sección 9.2):
@@ -238,7 +238,12 @@ export function FormularioCompra({ sorteo, disponibles, onSuccess }: FormularioC
         </div>
       </div>
 
-      <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
+      {mostrarProgreso && (
+        <ProgressBar
+          total={sorteo.cantidad_numeros}
+          ocupados={sorteo.cantidad_numeros - disponibles}
+        />
+      )}
 
       <div className="p-3 rounded-2xl bg-sage-50/70 border border-sage-200 text-[11px] text-sage-800 leading-relaxed">
         Pago seguro con Mercado Pago • Tu número se asigna automáticamente al confirmarse el pago.
