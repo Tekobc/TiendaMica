@@ -44,7 +44,7 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
         </section>
       )}
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-rose-50/50 to-cream-100 rounded-3xl p-6 sm:p-8 shadow-xs border border-rose-100">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-rose-50/50 to-cream-100 rounded-3xl p-5 sm:p-6 shadow-xs border border-rose-100">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-rose-100/40 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-sage-100/40 blur-3xl pointer-events-none" />
 
