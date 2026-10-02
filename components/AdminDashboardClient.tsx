@@ -364,7 +364,7 @@ function AdminDashboardWithSorteo({
               Número Ganador de la Dinámica
             </h2>
             <p className="text-xs text-stone-500 mt-0.5">
-              Se carga una única vez. Inalterable una vez registrado (RN-07).
+              Solo se admiten números de compras pagadas. Se carga una única vez (RN-07).
             </p>
           </div>
         </div>

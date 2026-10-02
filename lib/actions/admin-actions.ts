@@ -269,8 +269,30 @@ export async function cargarGanador(
       };
     }
 
+    const { data: numero, error: numeroErr } = await supabase
+      .from("numeros")
+      .select("compra_id")
+      .eq("sorteo_id", sorteoId)
+      .eq("numero", numeroGanador)
+      .maybeSingle();
+
+    if (numeroErr || !numero?.compra_id) {
+      return { ok: false, error: "El número ganador debe estar asignado a una compra pagada." };
+    }
+
+    const { data: compra, error: compraErr } = await supabase
+      .from("compras")
+      .select("estado_pago")
+      .eq("id", numero.compra_id)
+      .eq("sorteo_id", sorteoId)
+      .maybeSingle();
+
+    if (compraErr || compra?.estado_pago !== "pagado") {
+      return { ok: false, error: "El número ganador debe estar asignado a una compra pagada." };
+    }
+
     // 3. Registrar ganador con auditoría de quién y cuándo (RN-07)
-    const { error: updateErr } = await supabase
+    const { data: sorteoActualizado, error: updateErr } = await supabase
       .from("sorteos")
       .update({
         numero_ganador: numeroGanador,
@@ -278,10 +300,17 @@ export async function cargarGanador(
         ganador_cargado_por: admin.email,
         estado: "sorteado",
       })
-      .eq("id", sorteoId);
+      .eq("id", sorteoId)
+      .is("numero_ganador", null)
+      .select("id")
+      .maybeSingle();
 
     if (updateErr) {
       return { ok: false, error: updateErr.message };
+    }
+
+    if (!sorteoActualizado) {
+      return { ok: false, error: "El ganador ya fue cargado y no puede modificarse (RN-07)." };
     }
 
     revalidatePath("/admin");

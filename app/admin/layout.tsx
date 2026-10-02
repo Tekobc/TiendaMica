@@ -1,6 +1,5 @@
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 
 export default async function AdminLayout({
@@ -9,8 +8,6 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const adminUser = await getAuthenticatedAdmin();
-
-  if (!adminUser) redirect("/admin/login");
 
   // El middleware ya garantiza que si llegamos acá hay sesión de Supabase Auth.
   // Solo queda verificar la whitelist (CONTEXT.md Sección 10): si el email no está autorizado → 403.

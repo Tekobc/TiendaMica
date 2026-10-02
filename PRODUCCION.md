@@ -26,10 +26,10 @@ on conflict (email) do nothing;
 
 ## 2. Configurar autenticación de administrador
 
-1. En **Authentication > Providers**, habilita Google e introduce el OAuth Client ID y Client Secret creados en Google Cloud.
-2. En Google Cloud crea un cliente OAuth tipo Web. Usa como URI autorizada de redirección la URL de callback que muestra Supabase, normalmente `https://<project-ref>.supabase.co/auth/v1/callback`.
-3. En **Authentication > URL Configuration**, configura como Site URL el dominio de producción y agrega a Redirect URLs el dominio de producción con `/admin`, además de las URLs de preview que vayas a probar.
-4. La dirección de Google debe coincidir exactamente con la fila que insertaste en `admins_whitelist`.
+1. En **Authentication > Sign In / Providers**, habilita el proveedor de correo y contraseña. No habilites el registro público si solo quieres cuentas administradas.
+2. En **Authentication > Users**, crea o invita cada cuenta administradora y confirma su correo según la configuración del proyecto.
+3. Inserta el mismo correo, en minúsculas, en `admins_whitelist`. Autenticarse no concede permisos por sí solo; el servidor verifica esta tabla en cada acceso al panel.
+4. Guarda contraseñas individuales y únicas. No compartas credenciales entre administradores.
 
 ## 3. Conectar Vercel
 
