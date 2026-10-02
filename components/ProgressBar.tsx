@@ -8,7 +8,7 @@ export function ProgressBar({ total, ocupados }: ProgressBarProps) {
   const porcentaje = total > 0 ? Math.min(100, Math.round((ocupados / total) * 100)) : 0;
 
   return (
-    <div className="w-full bg-white rounded-2xl p-5 shadow-xs border border-rose-100/70">
+    <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-mica-500 animate-pulse" />
