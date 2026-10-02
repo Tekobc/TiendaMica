@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { getActiveSorteo, getHistorialSorteos, MOCK_SORTEO_ACTIVO, MOCK_HISTORIAL } from "@/lib/mock-data";
 import { Sorteo, Compra, SorteoHistorialItem } from "@/lib/types";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
@@ -503,4 +505,17 @@ export async function logoutAdminAction(): Promise<{ ok: boolean }> {
   const cookieStore = await cookies();
   cookieStore.delete("admin_dev_session");
   return { ok: true };
+}
+
+export async function logoutAndRetryAdminAction(): Promise<void> {
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch {
+  } finally {
+    const cookieStore = await cookies();
+    cookieStore.delete("admin_dev_session");
+  }
+
+  redirect("/admin/login");
 }

@@ -1,4 +1,5 @@
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
+import { logoutAndRetryAdminAction } from "@/lib/actions/admin-actions";
 import Link from "next/link";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
 
@@ -27,17 +28,24 @@ export default async function AdminLayout({
             <code>admins_whitelist</code>).
           </p>
           <div className="p-3 bg-stone-50 rounded-xl text-[11px] text-stone-500 mb-6 text-left">
-            Por razones de seguridad, iniciar sesión con Google solo autentica
-            tu identidad pero no otorga permisos de administración a menos que
-            el email esté previamente dado de alta por el titular.
+            La cuenta está autenticada, pero su correo debe estar dado de alta
+            en la whitelist para acceder al panel.
           </div>
-          <Link
-            href="/dinamica"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver al sitio público</span>
-          </Link>
+          <form action={logoutAndRetryAdminAction} className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Cerrar sesión y volver a intentar</span>
+            </button>
+            <Link
+              href="/dinamica"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold hover:bg-stone-200 transition-colors"
+            >
+              <span>Volver al sitio público</span>
+            </Link>
+          </form>
         </div>
       </div>
     );
