@@ -3,14 +3,133 @@
 @tailwind utilities;
 
 :root {
-  --background: #faf8f5;
-  --foreground: #2d2627;
+  --page-bg: #faf8f5;
+  --page-fg: #2d2627;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-strong: #ffffff;
+  --surface-muted: #fdf6f7;
+  --surface-alt: #f7f1ee;
+  --border: rgba(220, 164, 179, 0.8);
+  --muted: #5f5960;
+  --brand-rose: #de637f;
+  --brand-rose-soft: #fdf6f7;
+  color-scheme: light;
+}
+
+html {
+  background-color: var(--page-bg);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--page-fg);
+  background: var(--page-bg);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.dark {
+  --page-bg: #171416;
+  --page-fg: #f4eef0;
+  --surface: rgba(36, 29, 32, 0.9);
+  --surface-strong: #241d20;
+  --surface-muted: #2d272b;
+  --surface-alt: #362a2d;
+  --border: rgba(215, 129, 150, 0.42);
+  --muted: #cabfc6;
+  --brand-rose: #ef88a3;
+  --brand-rose-soft: #2d2326;
+  color-scheme: dark;
+}
+
+.dark body,
+.dark .bg-\[\#faf8f5\],
+.dark .bg-white,
+.dark .bg-white\/80,
+.dark .bg-white\/90,
+.dark .bg-stone-50,
+.dark .bg-stone-100,
+.dark .bg-rose-50,
+.dark .bg-rose-50\/50,
+.dark .bg-rose-50\/60,
+.dark .bg-rose-100,
+.dark .bg-mica-50,
+.dark .bg-mica-100,
+.dark .bg-sage-50,
+.dark .bg-sage-50\/70,
+.dark .bg-sage-100,
+.dark .bg-cream-100 {
+  background-color: var(--surface-strong);
+}
+
+.dark .text-stone-900,
+.dark .text-stone-800,
+.dark .text-stone-700,
+.dark .text-stone-600,
+.dark .text-stone-500,
+.dark .text-stone-400,
+.dark .text-mica-800,
+.dark .text-mica-700,
+.dark .text-mica-600,
+.dark .text-sage-800,
+.dark .text-sage-700,
+.dark .text-sage-600,
+.dark .text-sage-500,
+.dark .text-stone-300,
+.dark .text-stone-200,
+.dark .text-stone-100 {
+  color: #f6edf1;
+}
+
+.dark .border-stone-200,
+.dark .border-stone-300,
+.dark .border-rose-100,
+.dark .border-rose-200,
+.dark .border-sage-200,
+.dark .border-mica-200,
+.dark .border-rose-100\/70,
+.dark .border-rose-100\/80 {
+  border-color: rgba(135, 110, 118, 0.65);
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  color: #f4eef0;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #b5a7ad;
+}
+
+.dark .from-white {
+  --tw-gradient-from: #241d20 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(36 32 35 / 0%) var(--tw-gradient-to-position);
+}
+
+.dark .via-rose-50\/50 {
+  --tw-gradient-stops: var(--tw-gradient-from), #2f252b var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+.dark .to-cream-100,
+.dark .to-white {
+  --tw-gradient-to: #2d272b var(--tw-gradient-to-position);
+}
+
+.dark header.sticky {
+  background-color: rgba(23, 20, 22, 0.92);
+  border-color: rgba(135, 110, 118, 0.65);
+}
+
+.dark input[type="checkbox"] {
+  color-scheme: dark;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #241d20;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #66545d;
 }
 
 /* Custom scrollbars */

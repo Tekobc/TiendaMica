@@ -30,6 +30,11 @@ export function MisNumerosClient({
   todosLosNumeros,
 }: MisNumerosClientProps) {
   const [copied, setCopied] = useState(false);
+  const whatsappChannelUrl = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || "";
+  const publicResultsText =
+    process.env.NEXT_PUBLIC_PUBLIC_RESULTS_TEXT ||
+    "Cuando finalice la dinámica, el resultado se publicará en el canal de WhatsApp.";
+  const sortedNumbers = [...misNumeros].sort((a, b) => a - b);
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
@@ -45,7 +50,7 @@ export function MisNumerosClient({
     <div className="flex flex-col gap-6 sm:gap-8 pb-12">
       <Link
         href="/dinamica"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-mica-600 transition-colors w-fit"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-mica-600 transition-colors w-fit dark:text-stone-300 dark:hover:text-mica-300"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Volver a la portada de la dinámica</span>
@@ -53,61 +58,103 @@ export function MisNumerosClient({
 
       {/* Estado del Pago */}
       {compra.estado_pago === "pagado" && (
-        <section className="bg-gradient-to-br from-sage-50 via-white to-cream-50 border border-sage-200/90 rounded-3xl p-6 sm:p-8 shadow-xs">
-          <div className="flex items-center gap-2.5 text-sage-700 text-xs font-bold uppercase tracking-wider mb-2">
-            <CheckCircle2 className="w-4 h-4 text-sage-600" />
-            <span>Pago Confirmado • ¡Ya estás participando!</span>
-          </div>
+        <section className="bg-gradient-to-br from-sage-50 via-white to-cream-50 border border-sage-200/90 rounded-3xl p-5 sm:p-7 shadow-xs dark:border-sage-500/20 dark:from-[#1d2921] dark:via-[#201b1d] dark:to-[#1d1a1b]">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2.5 text-sage-700 text-[11px] font-bold uppercase tracking-wider dark:text-sage-200">
+              <CheckCircle2 className="w-4 h-4 text-sage-600 dark:text-sage-300" />
+              <span>Pago confirmado • ¡Ya estás participando!</span>
+            </div>
 
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 mb-2">
-            ¡Felicitaciones, {compra.nombre_completo}!
-          </h1>
-          <p className="text-sm text-stone-600 mb-6 max-w-xl">
-            Tu pago por <strong>${compra.monto_total.toLocaleString("es-AR")}</strong> fue acreditado con éxito. Tus números ya están asegurados y bloqueados en el sistema.
-          </p>
-
-          {/* Badge de números asignados */}
-          <div className="bg-white rounded-2xl p-5 border border-rose-100 shadow-2xs mb-6">
-            <span className="text-xs font-semibold uppercase tracking-wider text-mica-700 block mb-3">
-              Tus números asignados:
-            </span>
-            <div className="flex flex-wrap gap-2.5">
-              {misNumeros.map((num) => (
-                <span
-                  key={num}
-                  className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-mica-500 to-mica-600 text-white font-mono font-bold text-lg shadow-sm shadow-mica-200 flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-4 h-4 text-rose-200" />
-                  #{String(num).padStart(2, "0")}
-                </span>
-              ))}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <img
+                src="/logo-adonai.svg"
+                alt="Adonai BY TIENDA MICA"
+                className="h-12 w-12 rounded-2xl object-contain bg-white/80 p-1 ring-1 ring-rose-100/80 dark:bg-[#241d20] dark:ring-rose-500/20"
+              />
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-stone-100">
+                  🎉 ¡Ya estás participando!
+                </h1>
+                <p className="text-sm text-stone-600 dark:text-stone-300">
+                  Tu pago fue recibido correctamente. 💖
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Alerta para guardar el enlace */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-amber-900 text-xs">
-            <div className="flex items-start gap-2.5">
-              <Share2 className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <span>
-                <strong>Guardá este enlace:</strong> Esta URL privada con token es tu único comprobante para revisar tus números en cualquier momento.
+          <div className="mt-6 rounded-2xl bg-white/90 p-5 border border-rose-100 shadow-2xs dark:bg-[#241d20] dark:border-rose-500/20">
+            <div className="flex flex-col gap-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-mica-700 dark:text-mica-300">
+                🍀 ¡Estos son tus números!
               </span>
+              <div className="flex flex-wrap gap-2.5">
+                {sortedNumbers.map((num) => (
+                  <span
+                    key={num}
+                    className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-mica-500 to-mica-600 text-white font-mono font-bold text-base sm:text-lg shadow-sm shadow-mica-200 flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-4 h-4 text-rose-200" />
+                    #{String(num).padStart(2, "0")}
+                  </span>
+                ))}
+              </div>
+              <p className="text-sm text-stone-600 dark:text-stone-300">
+                💖 Gracias, <span className="font-semibold text-stone-800 dark:text-stone-100">{compra.nombre_completo}</span>
+              </p>
             </div>
-            <button
-              onClick={handleCopyLink}
-              className="py-2 px-3.5 rounded-xl bg-white border border-amber-300 text-amber-900 font-semibold hover:bg-amber-100/60 shadow-2xs transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-sage-600" />
-                  <span>¡Enlace copiado!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copiar enlace</span>
-                </>
-              )}
-            </button>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-3">
+            {whatsappChannelUrl ? (
+              <a
+                href={whatsappChannelUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-200/80 transition-colors hover:bg-emerald-700 dark:shadow-emerald-900/50"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>💬 Unirme al canal de WhatsApp</span>
+              </a>
+            ) : (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-[#2a2318] dark:text-amber-100">
+                El enlace del canal de WhatsApp todavía no fue informado por el cliente. Cuando lo recibamos, se activará este botón.
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-[#2a2318] dark:text-amber-100">
+              <div className="flex items-start gap-2.5">
+                <Share2 className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 dark:text-amber-300" />
+                <span>
+                  <strong>✨ Hacé una captura de pantalla</strong> para guardar tus numeritos.
+                </span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Copy className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 dark:text-amber-300" />
+                <span>
+                  <strong>Guardá este enlace:</strong> esta URL privada es el comprobante oficial para volver a ver tus números cuando quieras.
+                </span>
+              </div>
+              <button
+                onClick={handleCopyLink}
+                className="self-start rounded-xl bg-white border border-amber-300 px-3 py-2 font-semibold text-amber-900 hover:bg-amber-100/60 transition-all dark:border-amber-500/40 dark:bg-[#352f2a] dark:text-amber-100"
+              >
+                {copied ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5 text-sage-600 dark:text-sage-300" />
+                    ¡Enlace copiado!
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Copy className="w-3.5 h-3.5" />
+                    Copiar enlace
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-500 dark:text-stone-300">
+              {publicResultsText}
+            </p>
           </div>
         </section>
       )}

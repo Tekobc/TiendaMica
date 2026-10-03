@@ -21,7 +21,20 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
   const descripcion = sorteo.descripcion || sorteo.descripcion_auto || "Participá comprando tu número";
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8 pb-8">
+    <div className="flex flex-col gap-3 sm:gap-8 pb-8">
+      {!isSorteado && !isCompleto && (
+        <section className="bg-white rounded-3xl p-3 sm:p-4 shadow-xs border border-rose-100 dark:bg-[#211c1f] dark:border-rose-500/20">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h2 className="text-sm sm:text-base font-semibold text-stone-800 dark:text-stone-100">Compra tu número</h2>
+            <span className="text-[11px] text-stone-500 dark:text-stone-300">Disponibles: {disponibles}</span>
+          </div>
+          <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
+          <div className="mt-3">
+            <FormularioCompra sorteo={sorteo} disponibles={disponibles} mostrarProgreso={false} />
+          </div>
+        </section>
+      )}
+
       {isSorteado && (
         <section className="w-full p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-white shadow-lg shadow-amber-200/60 border border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in duration-300">
           <div className="flex items-center gap-4">
@@ -44,7 +57,7 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
         </section>
       )}
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-rose-50/50 to-cream-100 rounded-3xl p-5 sm:p-6 shadow-xs border border-rose-100">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-rose-50/50 to-cream-100 rounded-3xl p-3 sm:p-4 shadow-xs border border-rose-100 dark:border-rose-500/20 dark:from-[#241d20] dark:via-[#2f252a] dark:to-[#201d20]">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-rose-100/40 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-sage-100/40 blur-3xl pointer-events-none" />
 
@@ -93,16 +106,18 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
         </div>
       </section>
 
-      <section className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-rose-100">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <h2 className="text-sm sm:text-base font-semibold text-stone-800">Compra tu número</h2>
-          <span className="text-[11px] text-stone-500">Disponibles: {disponibles}</span>
-        </div>
-        <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
-        <div className="mt-5">
-          <FormularioCompra sorteo={sorteo} disponibles={disponibles} mostrarProgreso={false} />
-        </div>
-      </section>
+      {(isSorteado || isCompleto) && (
+        <section className="bg-white rounded-3xl p-3 sm:p-4 shadow-xs border border-rose-100">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h2 className="text-sm sm:text-base font-semibold text-stone-800">Compra tu número</h2>
+            <span className="text-[11px] text-stone-500">Disponibles: {disponibles}</span>
+          </div>
+          <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
+          <div className="mt-3">
+            <FormularioCompra sorteo={sorteo} disponibles={disponibles} mostrarProgreso={false} />
+          </div>
+        </section>
+      )}
 
       <NumerosGrid numeros={numeros} numeroGanador={sorteo.numero_ganador} />
 

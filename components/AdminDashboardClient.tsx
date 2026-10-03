@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { Sorteo } from "@/lib/types";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface AdminDashboardClientProps {
   initialData: AdminDashboardData;
@@ -282,6 +283,7 @@ function AdminDashboardWithSorteo({
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             href="/dinamica"
             target="_blank"
