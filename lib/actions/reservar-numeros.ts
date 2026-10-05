@@ -125,8 +125,12 @@ export async function reservarNumerosAction(input: ReservarNumerosInput): Promis
       }
     }
 
-    const isLive = process.env.MP_ACCESS_TOKEN?.startsWith("APP_USR-");
-    const initPoint = isLive
+    const mpEnvironment = process.env.MP_ENVIRONMENT ??
+      (process.env.MP_ACCESS_TOKEN?.startsWith("TEST-") ? "sandbox" : "production");
+    if (mpEnvironment !== "sandbox" && mpEnvironment !== "production") {
+      throw new Error("MP_ENVIRONMENT debe ser 'sandbox' o 'production'.");
+    }
+    const initPoint = mpEnvironment === "production"
       ? (preference.init_point || preference.sandbox_init_point)
       : (preference.sandbox_init_point || preference.init_point);
 

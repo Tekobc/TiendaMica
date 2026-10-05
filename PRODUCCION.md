@@ -42,11 +42,12 @@ on conflict (email) do nothing;
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_...`) |
 | `SUPABASE_SECRET_KEY` | Secret key (`sb_secret_...`); solo servidor |
 | `NEXT_PUBLIC_SITE_URL` | Dominio final, con `https://` y sin `/` final |
-| `MP_ACCESS_TOKEN` | Token de prueba inicialmente; token `APP_USR-...` solo al habilitar cobros reales |
+| `MP_ENVIRONMENT` | `production` para cobros reales |
+| `MP_ACCESS_TOKEN` | Access Token de producción de la cuenta que recibirá los cobros |
 
 No pongas `SUPABASE_SECRET_KEY` bajo un nombre `NEXT_PUBLIC_`, no la compartas por chat y no la guardes en Git. Los nombres heredados `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` también son aceptados por compatibilidad.
 
-3. Para preview, configura variables separadas y preferentemente un proyecto Supabase de staging; usa credenciales de prueba de Mercado Pago. No conectes pruebas de preview a la base de datos que recibe compras reales.
+3. Para preview, configura `MP_ENVIRONMENT=sandbox` y credenciales de prueba de Mercado Pago; el prefijo de la credencial no determina el entorno. Usa variables separadas y preferentemente un proyecto Supabase de staging. No conectes pruebas de preview a la base de datos que recibe compras reales.
 4. Lanza un deployment de producción y revisa los logs de build. El proyecto Vercel se puede enlazar con la integración Supabase desde el marketplace, pero igual verifica los nombres y entornos de las variables de arriba.
 
 ## 4. Crear la primera dinámica
