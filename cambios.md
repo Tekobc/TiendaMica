@@ -114,3 +114,6 @@
 | RF-05 | Barra de progreso dentro del bloque del formulario | UX/layout |
 | RF-06 | Historial pasa de Home pública a panel admin | Alcance/arquitectura de información |
 
+// 
+
+

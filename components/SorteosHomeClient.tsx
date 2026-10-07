@@ -68,37 +68,37 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-stone-900 tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-stone-900 dark:text-stone-100 tracking-tight leading-tight [text-wrap:balance]">
               {titulo}
             </h1>
-            <p className="text-sm sm:text-base text-stone-600 font-medium">
+            <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 font-medium">
               {descripcion}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <div className="px-4 py-2 rounded-2xl bg-white border border-rose-100 shadow-2xs">
-              <span className="text-[11px] text-stone-400 block font-medium">Premio</span>
-              <span className="text-base sm:text-lg font-bold font-serif text-mica-700">
+            <div className="px-4 py-2 rounded-2xl bg-white dark:bg-[#282025] border border-rose-100 dark:border-rose-500/20 shadow-2xs">
+              <span className="text-[11px] text-stone-400 dark:text-stone-300 block font-medium">Premio</span>
+              <span className="text-base sm:text-lg font-bold font-serif text-mica-700 dark:text-mica-300">
                 {sorteo.premio}
               </span>
             </div>
 
-            <div className="px-4 py-2 rounded-2xl bg-white border border-rose-100 shadow-2xs">
-              <span className="text-[11px] text-stone-400 block font-medium">Precio por número</span>
-              <span className="text-xl sm:text-2xl font-bold font-serif text-stone-800">
+            <div className="px-4 py-2 rounded-2xl bg-white dark:bg-[#282025] border border-rose-100 dark:border-rose-500/20 shadow-2xs">
+              <span className="text-[11px] text-stone-400 dark:text-stone-300 block font-medium">Precio por número</span>
+              <span className="text-xl sm:text-2xl font-bold font-serif text-stone-800 dark:text-stone-100 tabular-nums">
                 ${sorteo.precio_numero.toLocaleString("es-AR")}
               </span>
             </div>
 
             {isSorteado ? (
-              <div className="ml-auto w-full sm:w-auto mt-2 sm:mt-0 py-3.5 px-6 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 font-bold text-sm flex items-center justify-center gap-2">
-                <Trophy className="w-4 h-4 text-amber-600" />
+              <div className="ml-auto w-full sm:w-auto mt-2 sm:mt-0 py-3.5 px-6 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-200 font-bold text-sm flex items-center justify-center gap-2">
+                <Trophy className="w-4 h-4 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                 <span>Dinámica Finalizada</span>
               </div>
             ) : isCompleto ? (
-              <div className="ml-auto w-full sm:w-auto mt-2 sm:mt-0 py-3.5 px-6 rounded-2xl bg-stone-100 border border-stone-200 text-stone-600 font-bold text-sm flex items-center justify-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-stone-500" />
+              <div className="ml-auto w-full sm:w-auto mt-2 sm:mt-0 py-3.5 px-6 rounded-2xl bg-stone-100 dark:bg-[#2a2227] border border-stone-200 dark:border-rose-500/20 text-stone-600 dark:text-stone-300 font-bold text-sm flex items-center justify-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-stone-500 dark:text-stone-400" aria-hidden="true" />
                 <span>Números Agotados</span>
               </div>
             ) : null}
@@ -107,10 +107,10 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
       </section>
 
       {(isSorteado || isCompleto) && (
-        <section className="bg-white rounded-3xl p-3 sm:p-4 shadow-xs border border-rose-100">
+        <section className="bg-white dark:bg-[#211c1f] rounded-3xl p-3 sm:p-4 shadow-xs border border-rose-100 dark:border-rose-500/20">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <h2 className="text-sm sm:text-base font-semibold text-stone-800">Compra tu número</h2>
-            <span className="text-[11px] text-stone-500">Disponibles: {disponibles}</span>
+            <h2 className="text-sm sm:text-base font-semibold text-stone-800 dark:text-stone-100">Compra tu número</h2>
+            <span className="text-[11px] text-stone-500 dark:text-stone-300 tabular-nums">Disponibles: {disponibles}</span>
           </div>
           <ProgressBar total={sorteo.cantidad_numeros} ocupados={ocupados} />
           <div className="mt-3">
@@ -122,33 +122,33 @@ export function SorteosHomeClient({ sorteo, numeros }: SorteosHomeClientProps) {
       <NumerosGrid numeros={numeros} numeroGanador={sorteo.numero_ganador} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-2xl bg-white border border-rose-100/70 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-sage-50 text-sage-600 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-5 h-5" />
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#211c1f] border border-rose-100/70 dark:border-rose-500/20 shadow-2xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-sage-50 dark:bg-sage-950/40 text-sage-600 dark:text-sage-300 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-stone-800">Asignación Transparente</h4>
-            <p className="text-[11px] text-stone-500">Números consecutivos y automáticos al abonar</p>
+            <h4 className="text-xs font-semibold text-stone-800 dark:text-stone-100">Asignación Transparente</h4>
+            <p className="text-[11px] text-stone-500 dark:text-stone-300">Números consecutivos y automáticos al abonar</p>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-rose-100/70 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-rose-50 text-mica-600 flex items-center justify-center shrink-0">
-            <Gift className="w-5 h-5" />
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#211c1f] border border-rose-100/70 dark:border-rose-500/20 shadow-2xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-mica-600 dark:text-mica-300 flex items-center justify-center shrink-0">
+            <Gift className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-stone-800">Premios Exclusivos</h4>
-            <p className="text-[11px] text-stone-500">Diseños y boxes seleccionadas de Adonai</p>
+            <h4 className="text-xs font-semibold text-stone-800 dark:text-stone-100">Premios Exclusivos</h4>
+            <p className="text-[11px] text-stone-500 dark:text-stone-300">Diseños y boxes seleccionadas de Adonai</p>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-rose-100/70 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-cream-100 text-stone-600 flex items-center justify-center shrink-0">
-            <AlertCircle className="w-5 h-5" />
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#211c1f] border border-rose-100/70 dark:border-rose-500/20 shadow-2xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-cream-100 dark:bg-[#2a2227] text-stone-600 dark:text-stone-300 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <h4 className="text-xs font-semibold text-stone-800">Bases y Condiciones</h4>
-            <Link href="/dinamica/bases-y-condiciones" className="text-[11px] text-mica-600 hover:underline">
+            <h4 className="text-xs font-semibold text-stone-800 dark:text-stone-100">Bases y Condiciones</h4>
+            <Link href="/dinamica/bases-y-condiciones" className="text-[11px] text-mica-600 dark:text-mica-400 hover:underline focus:outline-hidden focus-visible:ring-1 focus-visible:ring-mica-400 rounded-xs">
               Ver reglas y adjudicación &rarr;
             </Link>
           </div>

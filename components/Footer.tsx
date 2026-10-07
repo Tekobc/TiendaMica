@@ -9,6 +9,8 @@ export function Footer() {
           <img
             src="/logo-adonai.svg"
             alt="Adonai BY TIENDA MICA"
+            width={32}
+            height={32}
             className="h-8 w-8 rounded-lg object-contain bg-white/80 p-1 ring-1 ring-rose-100/80 dark:bg-[#241d20] dark:ring-rose-500/20"
           />
           <div className="flex flex-col">
@@ -22,8 +24,8 @@ export function Footer() {
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6 text-xs font-medium text-stone-500 dark:text-stone-300">
-          <Link href="/dinamica/bases-y-condiciones" className="hover:text-mica-600 transition-colors flex items-center gap-1.5 dark:hover:text-mica-300">
-            <Shield className="w-3.5 h-3.5 text-sage-600 dark:text-sage-300" />
+          <Link href="/dinamica/bases-y-condiciones" className="hover:text-mica-600 transition-colors flex items-center gap-1.5 dark:hover:text-mica-300 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-mica-400 rounded-xs">
+            <Shield className="w-3.5 h-3.5 text-sage-600 dark:text-sage-300" aria-hidden="true" />
             Bases y Condiciones
           </Link>
           <div className="flex items-center gap-2.5">
@@ -32,18 +34,18 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram de Adonai BY TIENDA MICA"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/80 text-stone-700 transition-colors hover:text-mica-600 hover:border-mica-200 dark:border-rose-500/30 dark:bg-[#2a2227] dark:text-stone-100"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/80 text-stone-700 transition-colors hover:text-mica-600 hover:border-mica-200 dark:border-rose-500/30 dark:bg-[#2a2227] dark:text-stone-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-mica-400"
             >
-              <Instagram className="h-4 w-4" />
+              <Instagram className="h-4 w-4" aria-hidden="true" />
             </a>
             <a
               href="https://www.facebook.com/tiendamica"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook de Adonai BY TIENDA MICA"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/80 text-stone-700 transition-colors hover:text-mica-600 hover:border-mica-200 dark:border-rose-500/30 dark:bg-[#2a2227] dark:text-stone-100"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/80 text-stone-700 transition-colors hover:text-mica-600 hover:border-mica-200 dark:border-rose-500/30 dark:bg-[#2a2227] dark:text-stone-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-mica-400"
             >
-              <Facebook className="h-4 w-4" />
+              <Facebook className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
         </div>

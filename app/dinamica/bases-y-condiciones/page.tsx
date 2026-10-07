@@ -16,27 +16,27 @@ export default function BasesYCondicionesPage() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8">
         <Link
           href="/dinamica"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 hover:text-mica-600 transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-500 dark:text-stone-300 hover:text-mica-600 dark:hover:text-mica-300 transition-colors mb-6 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-mica-400 rounded-xs"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Volver a la dinámica</span>
         </Link>
 
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xs border border-rose-100">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mica-600 mb-2">
-            <FileText className="w-4 h-4" />
+        <div className="bg-white dark:bg-[#211c1f] rounded-3xl p-6 sm:p-10 shadow-xs border border-rose-100 dark:border-rose-500/20">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mica-600 dark:text-mica-400 mb-2">
+            <FileText className="w-4 h-4" aria-hidden="true" />
             <span>Documento Legal Oficial</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-3 [text-wrap:balance]">
             Bases y Condiciones de la Dinámica
           </h1>
-          <p className="text-xs sm:text-sm text-stone-500 mb-8 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-sage-600" />
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-300 mb-8 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-sage-600 dark:text-sage-400" aria-hidden="true" />
             <span>Última actualización: Septiembre 2026 • República Argentina</span>
           </p>
 
-          <div className="space-y-6 text-sm text-stone-700 leading-relaxed font-sans">
+          <div className="space-y-6 text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
             <section className="space-y-2">
               <h2 className="text-base font-serif font-bold text-stone-900 flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-mica-600" />
