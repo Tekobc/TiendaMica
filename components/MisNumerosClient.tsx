@@ -30,7 +30,9 @@ export function MisNumerosClient({
   todosLosNumeros,
 }: MisNumerosClientProps) {
   const [copied, setCopied] = useState(false);
-  const whatsappChannelUrl = process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL || "";
+  const whatsappChannelUrl =
+    process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ||
+    "https://whatsapp.com/channel/0029Vb92gseCMY0LgZ4OQC40";
   const publicResultsText =
     process.env.NEXT_PUBLIC_PUBLIC_RESULTS_TEXT ||
     "Cuando finalice la dinámica, el resultado se publicará en el canal de WhatsApp.";
@@ -105,21 +107,15 @@ export function MisNumerosClient({
           </div>
 
           <div className="mt-5 flex flex-col gap-3">
-            {whatsappChannelUrl ? (
-              <a
-                href={whatsappChannelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-200/80 transition-colors hover:bg-emerald-700 dark:shadow-emerald-900/50"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>💬 Unirme al canal de WhatsApp</span>
-              </a>
-            ) : (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-[#2a2318] dark:text-amber-100">
-                El enlace del canal de WhatsApp todavía no fue informado por el cliente. Cuando lo recibamos, se activará este botón.
-              </div>
-            )}
+            <a
+              href={whatsappChannelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-200/80 transition-colors hover:bg-emerald-700 dark:shadow-emerald-900/50"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>💬 Unirme al canal de WhatsApp</span>
+            </a>
 
             <div className="flex flex-col gap-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-[#2a2318] dark:text-amber-100">
               <div className="flex items-start gap-2.5">

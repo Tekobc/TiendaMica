@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Facebook, Heart, Instagram, Shield } from "lucide-react";
+import { Facebook, Heart, Instagram, MessageCircle, Shield } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-rose-100/80 bg-white/80 backdrop-blur-xs py-8 mt-16 text-stone-600 dark:border-rose-500/20 dark:bg-[#1d181b]/90 dark:text-stone-200">
+    <footer className="w-full border-t border-brand-100/80 bg-white/80 backdrop-blur-xs py-8 mt-16 text-stone-600 dark:border-brand-500/20 dark:bg-[#1d181b]/90 dark:text-stone-200">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <img
@@ -30,7 +30,16 @@ export function Footer() {
           </Link>
           <div className="flex items-center gap-2.5">
             <a
-              href="https://www.instagram.com/tiendamica"
+              href="https://whatsapp.com/channel/0029Vb92gseCMY0LgZ4OQC40"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Canal de WhatsApp de Adonai BY TIENDA MICA"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white/80 text-stone-700 transition-colors hover:text-mica-600 hover:border-mica-200 dark:border-rose-500/30 dark:bg-[#2a2227] dark:text-stone-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-mica-400"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a
+              href="https://instagram.com/mica_tiendaonline?dlrf=YjB1Y21kNTliYmsx"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram de Adonai BY TIENDA MICA"
@@ -39,7 +48,7 @@ export function Footer() {
               <Instagram className="h-4 w-4" aria-hidden="true" />
             </a>
             <a
-              href="https://www.facebook.com/tiendamica"
+              href="https://www.facebook.com/share/1HfjhYz17m/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook de Adonai BY TIENDA MICA"
