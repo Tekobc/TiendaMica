@@ -30,9 +30,7 @@ export function MisNumerosClient({
   todosLosNumeros,
 }: MisNumerosClientProps) {
   const [copied, setCopied] = useState(false);
-  const whatsappChannelUrl =
-    process.env.NEXT_PUBLIC_WHATSAPP_CHANNEL_URL ||
-    "https://whatsapp.com/channel/0029Vb92gseCMY0LgZ4OQC40";
+  const whatsappChannelUrl = "https://whatsapp.com/channel/0029Vb92gseCMY0LgZ4OQC40";
   const publicResultsText =
     process.env.NEXT_PUBLIC_PUBLIC_RESULTS_TEXT ||
     "Cuando finalice la dinámica, el resultado se publicará en el canal de WhatsApp.";

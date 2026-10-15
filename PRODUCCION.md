@@ -47,6 +47,8 @@ on conflict (email) do nothing;
 
 No pongas `SUPABASE_SECRET_KEY` bajo un nombre `NEXT_PUBLIC_`, no la compartas por chat y no la guardes en Git. Los nombres heredados `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` también son aceptados por compatibilidad.
 
+Los enlaces públicos de Instagram, Facebook y el canal de WhatsApp están definidos en la aplicación y no requieren variables de entorno. Al cambiar estos enlaces, publica los cambios en `main` y confirma que Vercel haya completado el nuevo deployment de producción antes de probarlos.
+
 3. Para preview, configura `MP_ENVIRONMENT=sandbox` y credenciales de prueba de Mercado Pago; el prefijo de la credencial no determina el entorno. Usa variables separadas y preferentemente un proyecto Supabase de staging. No conectes pruebas de preview a la base de datos que recibe compras reales.
 4. Lanza un deployment de producción y revisa los logs de build. El proyecto Vercel se puede enlazar con la integración Supabase desde el marketplace, pero igual verifica los nombres y entornos de las variables de arriba.
 
